@@ -1,262 +1,269 @@
 # D.I.M — Dawless Is More
-## Cahier des charges — v0.1
+## Technical Specification — v0.1
 
 > *"D.I.M sequences the human, not the machine."*
-> Le tempo est roi. La machine guide. Le musicien joue.
+> Tempo is king. The machine guides. The musician plays.
 
 ---
 
-## 1. Vision & Philosophie
+## 1. Vision & Philosophy
 
 ### 1.1 Concept
 
-D.I.M est un **séquenceur de performance pour musicien humain**.
-Il ne contrôle aucun instrument, aucune machine, aucun plugin.
-Il guide le musicien : quoi jouer, quand, dans quel ordre, avec quelles variations.
+D.I.M is a **performance sequencer for human musicians**.
+It controls no instrument, no machine, no plugin.
+It guides the performer: what to play, when, in what order, with what variations.
 
-Analogie : le road book du Paris-Dakar. Le pilote conduit. Le copilote lit et annonce.
-D.I.M est le copilote. Le musicien est le pilote.
+Analogy: the Paris-Dakar rally road book. The driver drives. The co-pilot reads and calls.
+D.I.M is the co-pilot. The musician is the driver.
 
-### 1.2 Principes fondamentaux
+### 1.2 Core Principles
 
-- **Le tempo est roi** — tout est exprimé en mesures/beats, les secondes sont dérivées
-- **Non-linéaire par conception** — le set n'est pas un fichier audio figé, il vit
-- **Zéro latence perceptible** — l'affichage ne doit jamais faire douter le musicien
-- **No brainer** — lisible en < 1 seconde, utilisable avec les mains mouillées, sous les spots
-- **Multi-musicien** — une instance par performer, un master pour orchestrer
-- **Interopérable** — parle les protocoles standards (Ableton Link, MIDI Clock, OSC)
+- **Tempo is king** — everything is expressed in bars/beats; seconds are derived
+- **Non-linear by design** — a set is not a fixed audio file, it lives and breathes
+- **Zero perceptible latency** — the display must never make the musician doubt
+- **No-brainer** — readable in < 1 second, usable with wet hands, under stage lights
+- **Multi-performer** — one instance per performer, one master to orchestrate all
+- **Interoperable** — speaks standard protocols (Ableton Link, MIDI Clock, OSC)
 
-### 1.3 Ce que D.I.M N'est PAS
+### 1.3 What D.I.M Is NOT
 
-- Pas un séquenceur MIDI/CV (il ne séquence pas les machines)
-- Pas un DAW (pas d'enregistrement, pas de pistes audio)
-- Pas un prompteur simple (la structure est non-linéaire et conditionnelle)
-- Pas un gestionnaire de samples
+- Not a MIDI/CV sequencer (it does not sequence machines)
+- Not a DAW (no recording, no audio tracks)
+- Not a simple prompter (structure is non-linear and conditional)
+- Not a sample player
 
 ---
 
-## 2. Concepts fondamentaux
+## 2. Core Concepts
 
-### 2.1 Hiérarchie des objets
+### 2.1 Object Hierarchy
 
 ```
 Project
-  └── Lane(s)          — un instrument, un rôle, un performer
-        └── Section(s) — bloc structurel (intro, couplet, refrain...)
-              └── Cue(s) — action atomique à exécuter
+  └── Lane(s)          — one instrument, one role, one performer
+        └── Section(s) — structural block (intro, verse, chorus, fill...)
+              └── Cue(s) — one atomic action to perform
 ```
 
-### 2.2 Le Cue — atome de base
+### 2.2 The Cue — Atomic Unit
 
-Le cue est l'unité indivisible. Il représente **une action à faire**.
-Exemples : "Joue le patch VOID_01", "Coupe le filtre", "Improvise sur la gamme de Ré mineur".
+The cue is the indivisible unit. It represents **one action to perform**.
+Examples: "Play patch VOID_01", "Cut the filter", "Improvise on D minor scale".
 
-Attributs d'un cue :
+Cue attributes:
 ```
-label           — nom court, affiché en grand
-content         — instructions détaillées (patch, réglages, note)
-duration_bars   — durée en mesures (float : 0.5, 1, 2, 4, 8...)
-repeat          — nombre de répétitions (1 = pas de répétition)
+label           — short name, displayed large on screen
+content         — detailed instructions (patch name, settings, notes)
+duration_bars   — duration in bars (float: 0.5, 1, 2, 4, 8...)
+repeat          — number of repetitions (1 = no repetition)
 instruction     — PLAY | MUTE | LOOP | JUMP | GOSUB | SKIP | REVERSE | IF
 condition       — 1:2 | 3:4 | 50% | MANUAL | ALWAYS | NEVER
-jump_target     — cue_id ou section_id (si instruction JUMP/GOSUB)
-jump_lane       — lane_id (pour cross-lane jump)
-enabled         — booléen — coché/décoché dans la playlist
-order_index     — position réorderable dans la section
+jump_target     — cue_id or section_id (when instruction is JUMP or GOSUB)
+jump_lane       — lane_id (for cross-lane jumps)
+enabled         — boolean — checked/unchecked in the playlist
+order_index     — reorderable position within the section
 ```
 
-### 2.3 La Section — bloc structurel
+### 2.3 The Section — Structural Block
 
-Regroupement de cues. Représente une partie du morceau.
+A grouping of cues. Represents a part of the performance.
 
-Types prédéfinis : `intro` `couplet` `refrain` `bis` `alternative`
-                   `fill` `break` `outro` `fin` + `custom` (texte libre)
+Predefined types: `intro` `verse` `chorus` `bridge` `alternative`
+                  `fill` `break` `outro` `end` + `custom` (free text)
 
-Attributs d'une section :
+Section attributes:
 ```
 name, type, color
-instruction     — même instruction set que les cues
-playlist        — mode de sélection des cues actifs (all / nth / ratio / custom)
-reverse_flag    — lit les cues dans l'ordre inverse
+instruction     — same instruction set as cues
+playlist        — cue selection mode (all / nth / ratio / custom)
 ```
 
-### 2.4 La Lane — un performer / un instrument
+### 2.4 The Lane — One Performer / One Instrument
 
-Colonne verticale représentant un rôle dans le set.
+A horizontal row representing one role in the set.
 
 ```
-name            — "Synthé principal" | "Basse" | "Drums" | "FX" | "Conductor"
-color           — couleur distincte dans l'UI
-speed_ratio     — "1:1" (défaut) | "2:1" | "4:1" | "1:2" | "1:4"
-                  — toujours multiple/sous-multiple du tempo maître
-is_conductor    — si True, cette lane peut envoyer des commandes aux autres lanes
-sections        — liste ordonnée des sections dans cette lane
+name            — "Main Synth" | "Bass" | "Drums" | "FX" | "Conductor"
+color           — distinct color in the UI
+speed_ratio     — "1:1" (default) | "2:1" | "4:1" | "1:2" | "1:4"
+                  — always a multiple or sub-multiple of the master tempo
+is_conductor    — if True, this lane can send commands to other lanes
+sections        — ordered list of sections in this lane
 ```
 
-**Speed ratio** : une lane à 2:1 joue deux fois plus vite. Ses mesures sont deux fois plus
-courtes. La synchronisation se fait sur le downbeat global.
+**Speed ratio**: a lane at 2:1 plays twice as fast. Its bars are half as long.
+Synchronization occurs on the global downbeat.
 
-Nombre de lanes : **1 à 8** (au-delà, l'ergonomie tactile se dégrade).
-Recommandation affichage simultané : **1 à 6**.
+**Number of lanes: 1 to X — no hard upper limit.**
+The UI adapts dynamically:
+- Few lanes (1–4): all visible simultaneously
+- More lanes: scrollable layout with always-visible peek of adjacent lanes
+- Ergonomics and screen size drive the display strategy, not an artificial cap
+- The Conductor Lane is always pinned to the top when present
 
-### 2.5 L'Arrangement global
+### 2.5 The Global Arrangement
 
-Chaque lane définit sa propre séquence de sections. Un "arrangement global"
-optionnel synchronise les points de passage entre lanes sur les downbeats communs.
+Each lane defines its own sequence of sections. An optional global arrangement
+synchronizes transition points between lanes on shared downbeats.
 
 ---
 
-## 3. L'Instruction Set
+## 3. The Instruction Set
 
-Inspiration directe de BASIC et des structures de contrôle de flux.
-Chaque cue ET chaque section porte **une instruction**.
+Direct inspiration from BASIC and fundamental control flow structures.
+Each cue AND each section carries **one instruction**.
 
-### 3.1 Instructions de base
+### 3.1 Core Instructions
 
-| Instruction | Niveau | Comportement |
+| Instruction | Level | Behavior |
 |---|---|---|
-| `PLAY` | Cue + Section | Joue normalement, avance au suivant. Défaut. |
-| `MUTE` | Cue + Section | Consomme le temps, rien à faire. Silence visuel. |
-| `LOOP n` | Cue + Section | Répète n fois puis avance |
-| `LOOP UNTIL cond` | Cue + Section | Répète jusqu'à condition vraie |
-| `JUMP target` | Cue + Section | Saut inconditionnel vers cue/section |
-| `JUMP target IF cond` | Cue + Section | Saut conditionnel |
-| `GOSUB section` | Cue + Section | Appelle une section, **retourne ici** après |
-| `SKIP` | Cue | Saute ce cue (durée = 0) |
-| `SKIP UNTIL cond` | Cue | Ignore jusqu'à condition vraie |
-| `REVERSE` | Section | Lit les cues dans l'ordre inverse |
-| `REVERSE UNTIL cond` | Section | Inverse jusqu'à condition, puis reprend normal |
-| `IF cond THEN inst` | Cue + Section | Branchement simple |
-| `IF cond THEN inst ELSE inst` | Cue + Section | Branchement complet |
+| `PLAY` | Cue + Section | Play normally, advance to next. **Default.** |
+| `MUTE` | Cue + Section | Consume the time, nothing to do. Visual silence. |
+| `LOOP n` | Cue + Section | Repeat n times then advance |
+| `LOOP UNTIL cond` | Cue + Section | Repeat until condition is true |
+| `JUMP target` | Cue + Section | Unconditional jump to cue or section |
+| `JUMP target IF cond` | Cue + Section | Conditional jump |
+| `GOSUB section` | Cue + Section | Call a section, **return here** after it ends |
+| `SKIP` | Cue | Skip this cue (duration = 0) |
+| `SKIP UNTIL cond` | Cue | Skip until condition is true |
+| `REVERSE` | Section | Play cues in reverse order |
+| `REVERSE UNTIL cond` | Section | Reverse until condition, then resume normal |
+| `IF cond THEN inst` | Cue + Section | Simple branch |
+| `IF cond THEN inst ELSE inst` | Cue + Section | Full branch |
 
 ### 3.2 Conditions
 
-| Condition | Notation | Sens |
+| Condition | Notation | Meaning |
 |---|---|---|
-| Toujours | `ALWAYS` | Inconditionnel |
-| Jamais | `NEVER` | = MUTE / SKIP |
-| Nth passage | `1:2` `1:4` `3:4` | 1 fois sur 2 / 3 fois sur 4 |
-| Probabiliste | `50%` `25%` `75%` | Dé lancé à chaque passage |
-| Action manuelle | `MANUAL` | Attend un tap/déclenchement performer |
-| Compteur | `AFTER 4` | Après 4 passages de cette section |
+| Always | `ALWAYS` | Unconditional |
+| Never | `NEVER` | = MUTE / SKIP |
+| Nth pass | `1:2` `1:4` `3:4` | 1 out of 2 / 3 out of 4 |
+| Probabilistic | `50%` `25%` `75%` | Die rolled at each pass |
+| Manual trigger | `MANUAL` | Wait for a performer tap/trigger |
+| Counter | `AFTER 4` | After 4 passes through this section |
 
 ### 3.3 Cross-lane Jump
 
-Un cue dans Lane A peut déclencher un saut dans Lane B :
+A cue in Lane A can trigger a jump in Lane B:
 ```json
-{ "instruction": "JUMP", "target": "sec-refrain", "jump_lane": "lane-basse" }
+{ "instruction": "JUMP", "target": "sec-chorus", "jump_lane": "lane-bass" }
 ```
 
-La **Conductor Lane** est la convention recommandée :
-une lane dédiée à l'orchestration des autres, visible par le leader.
+The **Conductor Lane** is the recommended convention:
+a lane dedicated to orchestrating the others, visible to the band leader.
 
-### 3.4 GOSUB — pile d'appel
+### 3.4 GOSUB — Call Stack
 
-GOSUB crée une structure de sous-routine : une section peut être "appelée" depuis
-plusieurs points et retourne au point d'appel après exécution.
+GOSUB creates a subroutine structure: a section can be "called" from multiple points
+and returns to the call site after execution.
 
-Profondeur maximum configurable (défaut : 4 niveaux).
-Dépassement → `PLAY` forcé + alerte visuelle non-bloquante.
+Configurable maximum depth (default: 4 levels).
+Stack overflow → forced `PLAY` + non-blocking visual alert.
 
-### 3.5 Playlist de section
+### 3.5 Section Playlist
 
-La playlist définit quels cues jouer et dans quel ordre au sein d'une section :
+The playlist defines which cues to play and in what order within a section:
 
-| Mode | Comportement |
+| Mode | Behavior |
 |---|---|
-| `all` | Tous les cues enabled, dans l'ordre |
-| `nth:2` | 1 cue sur 2 |
-| `ratio:3:4` | 3 cues sur 4 |
-| `custom` | Ordre et sélection libres définis manuellement |
+| `all` | All enabled cues, in order |
+| `nth:2` | 1 cue out of 2 |
+| `ratio:3:4` | 3 cues out of 4 |
+| `custom` | Free order and selection defined manually |
 
-Chaque cue peut être coché/décoché (enabled) et réordonné dans la playlist.
+Each cue can be checked/unchecked (enabled) and reordered within the playlist.
 
 ---
 
-## 4. Timing & Synchronisation
+## 4. Timing & Synchronization
 
-### 4.1 Unités
+### 4.1 Units
 
-L'unité primaire est la **mesure (bar)**. Les secondes sont dérivées.
+The primary unit is the **bar**. Seconds are derived.
 
 ```
-beats_per_bar    = numérateur de la signature (4/4 → 4, 3/4 → 3, 7/8 → 7)
+beats_per_bar    = time signature numerator (4/4 → 4, 3/4 → 3, 7/8 → 7)
 sec_per_beat     = 60 / tempo_bpm
 sec_per_bar      = sec_per_beat × beats_per_bar
 cue_duration_sec = cue.duration_bars × sec_per_bar
 ```
 
-Signatures supportées : `4/4` `3/4` `6/8` `7/8` `5/4` `12/8` + signature libre.
+Supported time signatures: `4/4` `3/4` `6/8` `7/8` `5/4` `12/8` + free entry.
 
-### 4.2 Ableton Link
+### 4.2 Ableton Link (Priority 1)
 
-**Intégration prioritaire.** Ableton Link est un protocole peer-to-peer de
-synchronisation du tempo et de la position de beat sur réseau local (UDP multicast).
+**Primary sync integration.** Ableton Link is a peer-to-peer protocol for tempo
+and beat position synchronization on a local network (UDP multicast).
 
-Comportement dans D.I.M :
-- D.I.M peut **rejoindre** une session Link existante (Ableton, apps iOS, etc.)
-- D.I.M peut être **la source** du tempo de la session Link
-- Synchronisation automatique dès qu'une session Link est détectée sur le réseau
-- Pas de master/slave : protocole symétrique — tous les pairs négocient
+D.I.M behavior:
+- D.I.M can **join** an existing Link session (Ableton, iOS apps, etc.)
+- D.I.M can **be** the tempo source of a Link session
+- Automatic synchronization as soon as a Link session is detected on the network
+- No master/slave: symmetric protocol — all peers negotiate
 
-Bibliothèque Python : `python-link` (binding officiel Ableton Link SDK).
+Python library: `python-link` (official Ableton Link SDK binding).
 
-### 4.3 MIDI Clock
+### 4.3 MIDI Clock (Priority 2)
 
-- **Réception** : D.I.M suit une horloge MIDI Clock externe (24 PPQN)
-- **Émission** : D.I.M envoie une horloge MIDI Clock (pour synchroniser du hardware)
-- Support USB MIDI + DIN MIDI (via adaptateur)
-- Messages : `CLOCK` (24/QN) `START` `STOP` `CONTINUE`
+- **Receive**: D.I.M follows an external MIDI Clock (24 PPQN)
+- **Send**: D.I.M emits MIDI Clock (to sync hardware)
+- USB MIDI + DIN MIDI (via adapter)
+- Messages: `CLOCK` (24/QN) `START` `STOP` `CONTINUE`
 
-### 4.4 OSC (Open Sound Control)
+### 4.4 OSC (Priority 3)
 
-- Protocole natif D.I.M pour la communication inter-instances
-- Compatible avec Ableton (via plugins OSC), Max/MSP, PureData, SuperCollider, TouchOSC
-- UDP — latence < 1ms sur LAN
+- Native D.I.M protocol for inter-instance communication
+- Compatible with Ableton (via OSC plugins), Max/MSP, PureData, SuperCollider, TouchOSC
+- UDP — latency < 1ms on LAN
 
-### 4.5 Synchronisation multi-instance
+### 4.5 Internal Clock (Priority 4)
+
+Standalone fallback. Used when no external sync source is detected.
+
+### 4.6 Sync Source Priority
 
 ```
-Priorité de sync (décroissante) :
-  1. Ableton Link (si session détectée sur le réseau)
-  2. MIDI Clock externe reçu
-  3. Horloge D.I.M Master (OSC broadcast)
-  4. Horloge interne (standalone)
+Priority (highest first):
+  1. Ableton Link     (if a Link session is detected on the network)
+  2. External MIDI Clock received
+  3. D.I.M Master clock (OSC broadcast from master instance)
+  4. Internal clock   (standalone)
 ```
 
-Résolution des conflits : la source de plus haute priorité détectée l'emporte.
-Changement de source → crossfade de tempo (pas de saut brutal).
+Conflict resolution: highest-priority detected source wins.
+Source change → tempo crossfade (no hard jump).
 
 ---
 
-## 5. Architecture Réseau
+## 5. Network Architecture
 
-### 5.1 Topologie
+### 5.1 Topology
 
 ```
-MASTER D.I.M (laptop / RPi central)
+D.I.M MASTER (laptop / central RPi)
 │
-├── Ableton Link session (partagée avec DAW, apps iOS, etc.)
-├── OSC broadcast → toutes instances D.I.M
-├── WebSocket server → état temps réel
-├── REST API → management projets + instances
+├── Ableton Link session (shared with DAW, iOS apps, etc.)
+├── OSC broadcast → all D.I.M instances
+├── WebSocket server → real-time state
+├── REST API → project + instance management
 │
-├── D.I.M Instance 2 (RPi — Synthé)
-├── D.I.M Instance 3 (RPi — Drums)
-├── D.I.M Instance 4 (ESP32 — FX monitor)
-└── TouchOSC / Lemur (surface de contrôle)
+├── D.I.M Instance 2  (RPi — Synth performer)
+├── D.I.M Instance 3  (RPi — Drums performer)
+├── D.I.M Instance 4  (ESP32 — FX monitor)
+└── TouchOSC / Lemur  (control surface)
 ```
 
-### 5.2 Protocoles par couche
+### 5.2 Protocols by Layer
 
-| Couche | Protocole | Port | Latence cible |
+| Layer | Protocol | Port | Target latency |
 |---|---|---|---|
-| Sync beat/tempo | Ableton Link (UDP multicast) | 20808 | < 1 ms |
-| Sync transport | OSC / UDP | 7400 | < 1 ms |
-| État temps réel | WebSocket | 7401 | < 10 ms |
+| Beat/tempo sync | Ableton Link (UDP multicast) | 20808 | < 1 ms |
+| Transport sync | OSC / UDP | 7400 | < 1 ms |
+| Real-time state | WebSocket | 7401 | < 10 ms |
 | Management | REST HTTP | 5000 | < 100 ms |
-| Accès humain | SSH + TUI | 22 | — |
-| Discovery | mDNS / Bonjour | — | auto |
+| Human access | SSH + TUI | 22 | — |
+| Discovery | mDNS / Bonjour | — | automatic |
 
 ### 5.3 OSC Address Space
 
@@ -269,7 +276,7 @@ MASTER D.I.M (laptop / RPi central)
 /dim/transport/tempo        f:120.0
 /dim/transport/jump         s:"section-id"
 
-# Sync
+# Hard sync
 /dim/sync/beat              i:<beat>  i:<bar>  t:<timestamp>
 
 # Lane control
@@ -278,11 +285,11 @@ MASTER D.I.M (laptop / RPi central)
 /dim/lane/<id>/jump         s:"section-id"
 /dim/lane/<id>/speed        s:"2:1"
 
-# Instance → Master (reporting)
+# Instance → Master (state reporting)
 /dim/report/<name>/beat     i:<beat>  i:<bar>
 /dim/report/<name>/state    s:<json>
 
-# Orchestrateur → instance
+# Orchestrator → instance
 /dim/instance/<name>/play
 /dim/instance/<name>/project  s:<json>
 /dim/instance/all/sync
@@ -290,202 +297,221 @@ MASTER D.I.M (laptop / RPi central)
 
 ### 5.4 Auto-discovery
 
-Chaque instance annonce sa présence via **mDNS (Zeroconf/Bonjour)** :
+Each instance announces itself via **mDNS (Zeroconf/Bonjour)**:
 ```
-dim-synthé._dim._tcp.local   port 5000 (HTTP) + 7400 (OSC)
+dim-synth._dim._tcp.local   port 5000 (HTTP) + 7400 (OSC)
 ```
-Aucune configuration IP manuelle. Branchement → apparition automatique.
-ESP32 : mDNS via bibliothèque ESP-IDF native.
+No manual IP configuration required. Plug in → automatically appears.
+ESP32: mDNS via built-in ESP-IDF library.
 
 ---
 
 ## 6. Interfaces
 
-### 6.1 Philosophie UI
+### 6.1 UI Philosophy
 
-**Référence design : Teenage Engineering × Elektron**
+**Design reference: Teenage Engineering × Elektron**
 
-- Teenage Engineering : chaque pixel est intentionnel. Zéro décoration. Fonctionnel = beau.
-- Elektron : densité d'information, notation compacte, toutes les infos critiques visibles.
+- Teenage Engineering: every pixel is intentional. Zero decoration. Functional = beautiful.
+- Elektron: information density, compact notation, all critical info visible at once.
 
-**Règles fondamentales :**
-1. Lisible en < 1 seconde dans n'importe quelle condition de lumière
-2. Cibles tactiles ≥ 44px (norme Apple HIG) — utilisable avec les doigts, pas un stylet
-3. Contraste élevé — mode sombre par défaut (scène = lumière basse)
-4. Pas d'animation superflue — les animations ont une fonction sémantique
-5. Un seul écran pour la performance — zéro navigation pendant le jeu
-6. Informations par ordre de priorité : **cue courant → suivant → position → temps**
+**Core rules:**
+1. Readable in < 1 second under any lighting condition
+2. Touch targets ≥ 44px (Apple HIG standard) — usable with fingers, not a stylus
+3. High contrast — dark mode by default (stage = low light)
+4. No gratuitous animation — animations carry semantic meaning only
+5. One screen for performance — zero navigation while playing
+6. Information priority: **current cue → next → position → time**
 
-### 6.2 Interface Web (adapter principal)
+### 6.2 Web Interface (Primary Adapter)
 
-Deux modes distincts :
+Two distinct modes:
 
-**Mode Éditeur** (desktop + tablet landscape) :
-- Vue grille : lanes en lignes, sections en colonnes colorées
-- Panneau latéral contextuel : clic sur section → détail cues + instruction + playlist
-- Drag & drop pour réordonner sections et cues
-- Panneau tempo en haut : BPM, signature, Link status, sync source
+**Editor mode** (desktop + tablet landscape):
+- Grid view: lanes as rows, sections as colored columns
+- Contextual side panel: click section → cue list + instruction + playlist
+- Drag & drop to reorder sections and cues
+- Tempo panel at top: BPM, time signature, Link status, sync source
 
-**Mode Performance** (tous appareils, plein écran) :
-- Lane(s) en focus : section précédente (dim) | section courante | section suivante (dim)
-- Cue courant affiché en grand au centre
-- Countdown beats/bars dans coin supérieur droit
-- Topbar : BPM | signature | mesure courante | temps écoulé | indicateur Link
-- Transport : ⏮ ⏹ ▶/⏸ — toujours accessibles
-- Instruction badges : `LOOP 4` `↗ refrain` `↺ 1:2` `GOSUB fill`
+**Performance mode** (all devices, full screen):
+- Lane(s) in focus: previous section (dim) | current section | next section (dim)
+- Current cue displayed large at center
+- Beat/bar countdown top-right
+- Topbar: BPM | time signature | current bar | elapsed time | Link indicator
+- Transport: ⏮ ⏹ ▶/⏸ — always accessible
+- Instruction badges: `LOOP 4` `↗ chorus` `↺ 1:2` `GOSUB fill`
 
-### 6.3 Breakpoints responsive
+**Lane display strategy (performance mode):**
 
-| Contexte | Résolution | Mode | Lanes visibles |
+The number of lanes is variable (1 to X). The UI adapts:
+
+| Visible lanes | Layout strategy |
+|---|---|
+| 1 | Full width, maximum content |
+| 2–3 | Equal columns, all visible |
+| 4–5 | Compact columns, all visible |
+| 6–8 | Scrollable, active lane centered, adjacent peek |
+| 9+ | Active lane full width, lane switcher panel |
+
+The performer always sees their lane. The master always sees the Conductor Lane.
+No lane is ever hidden without a visible indicator.
+
+### 6.3 Responsive Breakpoints
+
+| Context | Viewport | Mode | Lane strategy |
 |---|---|---|---|
-| Desktop | > 1200px | Éditeur + Performance | 1 à 8 |
-| Tablet landscape | 1024px | Performance + édition légère | 1 à 6 |
-| Tablet portrait / RPi 7" | 768px | Performance | 1 à 4 |
-| Phone / RPi 3.5" | 480px | Performance 1 lane focus | 1 |
-| ESP32 TFT 320×240 | 320px | Cue courant + suivant | 1 |
-| ESP32 OLED 128×64 | 128px | Cue courant uniquement | 1 |
+| Desktop | > 1200px | Editor + Performance | All lanes, scrollable |
+| Tablet landscape | 1024px | Performance + light edit | Up to ~5 lanes visible |
+| Tablet portrait / RPi 7" | 768px | Performance | 2–3 lanes, scrollable |
+| Phone / RPi 3.5" | 480px | Performance, 1 lane focus | Swipe to switch lane |
+| ESP32 TFT 320×240 | 320px | Current cue + next | 1 assigned lane |
+| ESP32 OLED 128×64 | 128px | Current cue only | 1 assigned lane |
+
+The number of visible lanes is a **display constraint**, never a data model constraint.
+A project with 12 lanes is valid; the UI scrolls to show them.
 
 ### 6.4 TUI — Terminal User Interface
 
-Implémentée avec **Textual** (Python).
+Implemented with **Textual** (Python).
 
-Accessible via :
-- Terminal local
-- SSH (`.bashrc` → lance la TUI automatiquement)
-- Tmux/screen pour sessions persistantes
+Accessible via:
+- Local terminal
+- SSH (`.bashrc` → auto-launches TUI)
+- Tmux/screen for persistent sessions
 
-Deux vues :
-- **Performance** : même information que le web, rendu ASCII/Unicode
-- **Orchestrateur** : grille de toutes les instances connues, état en temps réel
+Two views:
+- **Performance**: same information as web, rendered in Unicode/ASCII
+- **Orchestrator**: grid of all known instances, real-time state
 
 ```
 ┌─ D.I.M ──────────────────── ▶ 118 BPM  4/4  ♩32  02:14 ─┐
-│ CONDUCTOR │░░░░████████░░│ REFRAIN      COUPLET 2         │
+│ CONDUCTOR │░░░░████████░░│ CHORUS        VERSE 2          │
 ├───────────┼──────────────┼──────────────────────────────── ┤
-│ SYNTHÉ 1:1│ [LOOP 2]     │ ▶ pad-void   ↺ 1:2            │
+│ SYNTH 1:1 │ [LOOP 2]     │ ▶ pad-void    ↺ 1:2           │
 ├───────────┼──────────────┼──────────────────────────────── ┤
-│ BASSE 2:1 │ MUTE ░░░░░░░ │ ▶ sub-bass   SKIP 2:4         │
+│ BASS  2:1 │ MUTE ░░░░░░░ │ ▶ sub-bass    SKIP 2:4        │
 └───────────┴──────────────┴──────────────────────────────── ┘
  [SPC] next  [←][→] nav  [M] mute  [L] loop  [S] stop  [?]
 ```
 
-### 6.5 ESP32 — Client display
+### 6.5 ESP32 — Display Client
 
-L'ESP32 est un **client lecture seule**. Il ne fait pas tourner de logique de séquencement.
-Il reçoit l'état courant depuis le serveur D.I.M via WiFi (WebSocket ou polling HTTP).
+The ESP32 is a **read-only display client**. It runs no sequencing logic.
+It receives the current state from the D.I.M server via WiFi (WebSocket or HTTP polling).
+It is assigned one specific lane to display.
 
-**TFT 320×240 (ILI9341)** :
-- Cue courant (grand) + cue suivant (petit)
-- Barre de progression beats
+**TFT 320×240 (ILI9341)**:
+- Current cue (large) + next cue (small)
+- Beat progress bar
 - Instruction badge
-- Bouton tactile : next / prev / stop
+- Touch buttons: next / prev / stop
 
-**OLED 128×64 (SSD1306)** :
-- Cue courant uniquement
+**OLED 128×64 (SSD1306)**:
+- Current cue only
 - Beat counter
-- Montre de bord minimale
+- Minimal wrist-watch display
 
-Connexion : WiFi → WebSocket → subscribe au state de sa lane assignée.
+Connection: WiFi → WebSocket → subscribe to assigned lane state.
 
 ---
 
-## 7. Architecture Technique
+## 7. Technical Architecture
 
-### 7.1 Structure projet
+### 7.1 Project Structure
 
 ```
 dim/
-  core/                        # Python pur — zéro dépendance framework
-    models.py                  # Dataclasses : Project, Lane, Section, Cue, Instruction
+  core/                        # Pure Python — zero framework dependency
+    models.py                  # Dataclasses: Project, Lane, Section, Cue, Instruction
     timing.py                  # BPM/bars/sec, speed_ratio, downbeat, conversions
-    instruction.py             # Évaluation instruction set (PLAY/LOOP/GOSUB/JUMP...)
-    condition.py               # Évaluation conditions (1:2, 50%, MANUAL...)
-    sequencer.py               # tick() pur, curseur multi-lane, pile GOSUB
-    playlist.py                # Construction queue cues dans une section
-    serializer.py              # JSON ↔ modèles (format canonique versionné)
-    validator.py               # Validation projet (cycles, jumps invalides, stack depth)
+    instruction.py             # Instruction evaluation (PLAY/LOOP/GOSUB/JUMP...)
+    condition.py               # Condition evaluation (1:2, 50%, MANUAL...)
+    sequencer.py               # Pure tick(), multi-lane cursor, GOSUB stack
+    playlist.py                # Cue queue construction within a section
+    serializer.py              # JSON ↔ models (versioned canonical format)
+    validator.py               # Project validation (cycles, invalid jumps, stack depth)
 
   network/
     osc/
-      server.py                # Réception UDP OSC, dispatch handlers
-      client.py                # Émission OSC (unicast + broadcast)
-      messages.py              # Address patterns, types, encodage/décodage
-      handlers.py              # Handlers /dim/transport/*, /dim/lane/*, etc.
+      server.py                # UDP OSC receiver, handler dispatch
+      client.py                # OSC emitter (unicast + broadcast)
+      messages.py              # Address patterns, types, encode/decode
+      handlers.py              # /dim/transport/*, /dim/lane/*, etc.
     websocket/
       server.py                # Flask-SocketIO
-      events.py                # Events : state_update, beat, sync, instance_list
+      events.py                # Events: state_update, beat, sync, instance_list
     rest/
-      blueprint.py             # CRUD projets, instances, config
-      schema.py                # Validation requêtes/réponses
+      blueprint.py             # CRUD projects, instances, config
+      schema.py                # Request/response validation
     discovery/
       mdns.py                  # Zeroconf — announce + browse
-      registry.py              # Instances connues, état, timestamp
+      registry.py              # Known instances, state, timestamps
     orchestrator/
-      master.py                # Logique maître — gestion instances
-      sync.py                  # Algorithme synchronisation beat multi-instance
-      proxy.py                 # InstanceProxy — abstraction instance distante
+      master.py                # Master logic — instance management
+      sync.py                  # Multi-instance beat synchronization algorithm
+      proxy.py                 # InstanceProxy — remote instance abstraction
     link/
-      link_session.py          # Intégration Ableton Link (python-link)
-      link_bridge.py           # Bridge Link ↔ OSC D.I.M
+      link_session.py          # Ableton Link integration (python-link)
+      link_bridge.py           # Bridge: Link ↔ D.I.M OSC
     midi/
-      clock_receiver.py        # Réception MIDI Clock (24 PPQN)
-      clock_sender.py          # Émission MIDI Clock
-      midi_bridge.py           # Bridge MIDI Clock ↔ séquenceur D.I.M
+      clock_receiver.py        # MIDI Clock reception (24 PPQN)
+      clock_sender.py          # MIDI Clock emission
+      midi_bridge.py           # Bridge: MIDI Clock ↔ D.I.M sequencer
 
   adapters/
     web/
       app.py                   # Flask application factory
-      blueprints/              # Routes par domaine
-      templates/               # Jinja2 — Éditeur + Performance
-      static/                  # CSS vanilla + JS léger (pas de framework)
+      blueprints/              # Routes by domain
+      templates/               # Jinja2 — Editor + Performance
+      static/                  # Vanilla CSS + lightweight JS (no framework)
     tui/
       app.py                   # Textual Application
       screens/
-        performance.py         # Vue scène
-        orchestrator.py        # Vue master
-      widgets/                 # Composants Textual
+        performance.py         # Stage view
+        orchestrator.py        # Master view
+      widgets/                 # Textual components
     esp32/
-      main.py                  # Point d'entrée MicroPython
-      wifi_sync.py             # Connexion WiFi + WebSocket client
+      main.py                  # MicroPython entry point
+      wifi_sync.py             # WiFi connection + WebSocket client
       display_tft.py           # ILI9341 320×240
       display_oled.py          # SSD1306 128×64
-      micro_models.py          # Sous-ensemble modèles (dataclasses → dicts)
+      micro_models.py          # Model subset (dataclasses → dicts for MicroPython)
 
   tests/
     test_timing.py
     test_instruction.py
     test_condition.py
-    test_sequencer.py          # Scénarios complets (GOSUB, cross-lane, Link sync)
+    test_sequencer.py          # Full scenarios (GOSUB, cross-lane, sync)
     test_playlist.py
     test_serializer.py
 
   docs/
-    instruction_set.md         # Référence complète instructions + conditions
-    format_v1.md               # Spec JSON canonique versionné
-    design_language.md         # Règles UI (TE/Elektron)
-    sync_protocols.md          # Ableton Link, MIDI Clock, OSC — guide d'intégration
-    osc_address_space.md       # Référence complète OSC
+    instruction_set.md         # Complete instruction + condition reference
+    format_v1.md               # Versioned canonical JSON spec
+    design_language.md         # UI rules (TE/Elektron)
+    sync_protocols.md          # Ableton Link, MIDI Clock, OSC integration guide
+    osc_address_space.md       # Complete OSC reference
 
   formats/
-    example_project.json       # Projet exemple commenté
-    schema_v1.json             # JSON Schema validation
+    example_project.json       # Annotated example project
+    schema_v1.json             # JSON Schema for validation
 
   requirements.txt
   requirements-dev.txt
   .gitignore
   LICENSE
   README.md
-  SPECS.md                     # Ce document
+  SPECS.md
   CHANGELOG.md
 ```
 
-### 7.2 Dépendances Python
+### 7.2 Python Dependencies
 
 ```
-# Core
+# Core runtime
 python >= 3.11
 
-# Web + réseau
+# Web + network
 flask >= 3.0
 flask-socketio >= 5.0
 python-osc >= 1.8            # OSC server + client
@@ -505,14 +531,14 @@ black
 ruff
 ```
 
-### 7.3 Format JSON canonique
+### 7.3 Canonical JSON Format
 
 ```json
 {
   "dim_version": "1.0",
   "project": {
     "id": "uuid",
-    "name": "Set Robōtariis — Live 2026",
+    "name": "Robōtariis Live Set 2026",
     "tempo_bpm": 118.0,
     "time_signature": "4/4",
     "gosub_stack_limit": 4,
@@ -527,14 +553,14 @@ ruff
       },
       {
         "id": "lane-synth",
-        "name": "Synthé principal",
+        "name": "Main Synth",
         "color": "#FF4D26",
         "speed_ratio": "1:1",
         "is_conductor": false,
         "sections": [
           {
             "id": "sec-intro",
-            "name": "Drone d'ouverture",
+            "name": "Opening Drone",
             "type": "intro",
             "color": "#2A2A2A",
             "instruction": { "op": "LOOP", "loop_count": 2 },
@@ -542,8 +568,8 @@ ruff
             "cues": [
               {
                 "id": "cue-001",
-                "label": "Drone grave",
-                "content": "Patch VOID_01 — filtre fermé cutoff 40% — réverb max",
+                "label": "Deep Drone",
+                "content": "Patch VOID_01 — filter closed, cutoff 40% — reverb max",
                 "duration_bars": 8.0,
                 "repeat": 1,
                 "instruction": { "op": "PLAY" },
@@ -555,48 +581,51 @@ ruff
         ]
       }
     ],
-    "arrangement": ["sec-intro", "sec-couplet", "sec-refrain"]
+    "arrangement": ["sec-intro", "sec-verse", "sec-chorus"]
   }
 }
 ```
 
-### 7.4 Principe de conception — tick() pur
+### 7.4 The tick() Principle
 
-La règle d'or : `tick()` est une **fonction pure**.
+The golden rule: `tick()` is a **pure function**.
 
 ```python
-def tick(cursor: PlaybackCursor, delta_beats: float, project: Project
-        ) -> tuple[PlaybackCursor, list[Event]]:
+def tick(
+    cursor: PlaybackCursor,
+    delta_beats: float,
+    project: Project
+) -> tuple[PlaybackCursor, list[Event]]:
     """
-    Avance le curseur de delta_beats.
-    Retourne le nouveau curseur et la liste des événements produits.
-    Aucun effet de bord. Testable de manière déterministe.
+    Advance the cursor by delta_beats.
+    Returns the new cursor and the list of events produced.
+    No side effects. Fully deterministic and testable.
     """
 ```
 
-Tous les effets (affichage, envoi OSC, sons) sont gérés par les adapters
-qui consomment la liste d'événements retournée.
+All side effects (display, OSC sending, alerts) are handled by adapters
+consuming the returned event list.
 
 ---
 
-## 8. Ergonomie & Design Language
+## 8. Ergonomics & Design Language
 
-### 8.1 Palette et typographie
+### 8.1 Color and Typography
 
-- **Fond** : near-black `#0D0D0D` (performance) / `#111111` (éditeur)
-- **Texte principal** : `#E8E4DC` (warm white)
-- **Accent** : couleur par lane, saturée, ≥ 4.5:1 contraste sur fond
-- **Muted** : `#555555`
-- **Danger/Urgent** : `#FF4D26`
-- **Typo** : IBM Plex Mono (labels, codes) + IBM Plex Sans (corps)
-- **Taille cue courant** : ≥ 24px sur mobile, ≥ 32px sur desktop
+- **Background**: near-black `#0D0D0D` (performance) / `#111111` (editor)
+- **Primary text**: `#E8E4DC` (warm white)
+- **Lane accent**: per-lane color, saturated, ≥ 4.5:1 contrast on background
+- **Muted**: `#555555`
+- **Danger / Urgent**: `#FF4D26`
+- **Typography**: IBM Plex Mono (labels, codes) + IBM Plex Sans (body)
+- **Current cue size**: ≥ 24px on mobile, ≥ 32px on desktop
 
-### 8.2 Notation compacte (style Elektron)
+### 8.2 Compact Notation (Elektron-style)
 
-| Instruction | Rendu badge |
+| Instruction | Badge |
 |---|---|
 | `LOOP 4` | `↺ 4` |
-| `JUMP refrain` | `↗ refrain` |
+| `JUMP chorus` | `↗ chorus` |
 | `GOSUB fill` | `⤵ fill` |
 | `MUTE` | `░ MUTE` |
 | `SKIP UNTIL 1:4` | `⇥ 1:4` |
@@ -604,108 +633,109 @@ qui consomment la liste d'événements retournée.
 | `REVERSE` | `⇐ REV` |
 | `50%` | `⚄ 50%` |
 
-### 8.3 États visuels
+### 8.3 Visual States
 
-- **Cue courant** : fond fort, texte max, badge instruction bien visible
-- **Cue suivant** : opacité 55%, léger décalage
-- **Cue précédent** : opacité 30%
-- **Section muted** : fond hachuré `░`, texte grisé
-- **Beat counter** : barre de progression par beats (pas par secondes)
-- **Sync Link** : indicateur discret en topbar — vert si connecté, absent si solo
-- **Alerte GOSUB overflow** : flash rouge non-bloquant, 2 secondes
+- **Current cue**: strong background, maximum text size, instruction badge prominent
+- **Next cue**: 55% opacity, slight offset
+- **Previous cue**: 30% opacity
+- **Muted section**: hatched background `░`, grayed text
+- **Beat counter**: progress bar in beats (not seconds)
+- **Link sync**: discrete indicator in topbar — green if connected, absent if solo
+- **GOSUB stack overflow**: non-blocking red flash, 2 seconds, no interruption
 
-### 8.4 Interactions tactiles
+### 8.4 Touch Interactions
 
-- Swipe gauche/droite : cue suivant/précédent
-- Tap zone bas : stop
-- Long press sur section : accès rapide instruction
-- Pinch : zoom police (40% à 250%)
-- Tous les boutons : ≥ 44×44px
-- Retour haptique sur les transitions critiques (si disponible)
+- Swipe left/right: next/previous cue
+- Tap bottom zone: stop
+- Long press on section: quick instruction access
+- Pinch: font zoom (40% to 250%)
+- All buttons: ≥ 44×44px
+- Haptic feedback on critical transitions (where available)
 
 ---
 
-## 9. Plateformes cibles
+## 9. Target Platforms
 
-| Plateforme | Interface | Notes |
+| Platform | Interface | Notes |
 |---|---|---|
-| macOS / Linux desktop | Web (Flask) + TUI | Éditeur complet + performance |
+| macOS / Linux desktop | Web (Flask) + TUI | Full editor + performance |
 | Windows | Web (Flask) | TUI possible via WSL |
-| Raspberry Pi 4 + écran 7" | Web kiosk (Chromium) | Même code web, CSS responsive |
-| Raspberry Pi Zero 2 + 3.5" | Web kiosk | 1-2 lanes, gros texte |
-| Raspberry Pi headless | TUI via SSH | Performance ou orchestrateur |
-| ESP32 + TFT ILI9341 320×240 | MicroPython client | Affichage cue + suivant |
-| ESP32 + OLED SSD1306 128×64 | MicroPython client | Cue courant + beat |
-| iPad / tablet | Web responsive | Performance tactile |
-| iPhone | Web responsive | 1 lane focus |
+| Raspberry Pi 4 + 7" screen | Web kiosk (Chromium) | Same web code, CSS responsive |
+| Raspberry Pi Zero 2 + 3.5" | Web kiosk | Compact layout, large text |
+| Raspberry Pi headless | TUI via SSH | Performance or orchestrator |
+| ESP32 + TFT ILI9341 320×240 | MicroPython client | Current cue + next + beat |
+| ESP32 + OLED SSD1306 128×64 | MicroPython client | Current cue + beat counter |
+| iPad / tablet | Web responsive | Full touch performance |
+| iPhone | Web responsive | Single lane focus, swipe to switch |
 
 ---
 
-## 10. Décisions architecturales actées
+## 10. Architectural Decisions
 
-| Sujet | Décision |
+| Topic | Decision |
 |---|---|
-| Nom | **D.I.M — Dawless Is More** |
-| Paradigme | Séquencer l'humain, pas la machine |
-| Unité temporelle | Mesures (bars) — secondes dérivées |
-| Sync prioritaire | Ableton Link > MIDI Clock > OSC Master > horloge interne |
-| Sync inter-instances | OSC UDP (transport) + WebSocket (état) |
-| Discovery | mDNS / Bonjour — zéro config |
-| Control flow | Instruction set BASIC-inspiré : 8 instructions, 6 types de conditions |
-| Cross-lane | JUMP / GOSUB inter-lane via Conductor Lane |
-| ESP32 | Client lecture seule — reçoit état depuis serveur Flask |
+| Name | **D.I.M — Dawless Is More** |
+| Paradigm | Sequence the human, not the machine |
+| Primary unit | Bars (beats) — seconds are derived |
+| Number of lanes | **1 to X — no upper limit** — display adapts dynamically |
+| Sync priority | Ableton Link > MIDI Clock > OSC Master > internal clock |
+| Inter-instance sync | OSC UDP (transport) + WebSocket (state) |
+| Discovery | mDNS / Bonjour — zero config |
+| Control flow | BASIC-inspired: 11 instructions, 6 condition types, GOSUB stack, cross-lane |
+| Cross-lane | JUMP / GOSUB inter-lane via Conductor Lane convention |
+| ESP32 | Read-only display client — receives state from Flask server |
 | TUI | Textual (Python) — local + SSH |
-| Web | Flask + vanilla CSS — aucun framework JS |
-| Tests | pytest — `tick()` pur testable de manière déterministe |
-| Format data | JSON canonique versionné (`dim_version`) |
-| Design | Teenage Engineering × Elektron — dense, fonctionnel, haute lisibilité |
+| Web | Flask + vanilla CSS — no JS framework |
+| Tests | pytest — `tick()` is pure, fully deterministic |
+| Data format | Versioned canonical JSON (`dim_version`) |
+| Design | Teenage Engineering × Elektron — dense, functional, < 1s readability |
 
 ---
 
-## 11. Hors périmètre (explicitement exclus)
+## 11. Out of Scope (explicitly excluded from v1)
 
-- Séquençage MIDI/CV des instruments
-- Enregistrement audio
-- Mixage
-- Effets audio
-- Gestion de samples
-- Notation musicale (partitions)
-- Synchronisation vidéo
-- Gestion de comptes utilisateurs (v1 = single-user / réseau local de confiance)
+- MIDI/CV sequencing of instruments
+- Audio recording
+- Mixing
+- Audio effects
+- Sample playback
+- Music notation / sheet music
+- Video synchronization
+- User account management (v1 = single-user / trusted local network)
 
 ---
 
 ## 12. Roadmap
 
 ```
-v0.1 — Core pur (Sprint 1)
-  core/ complet : models, timing, instruction, condition, sequencer, playlist
-  Testable en CLI : python -m dim.cli play example.json
-  Couverture tests > 80%
+v0.1 — Pure Core (Sprint 1)
+  Complete core/: models, timing, instruction, condition, sequencer, playlist
+  CLI-testable: python -m dim.cli play formats/example_project.json
+  Test coverage > 80%
 
-v0.2 — Interface Web (Sprint 2)
-  Flask + éditeur projet basique
-  Vue performance responsive (web)
-  Export/import JSON
+v0.2 — Web Interface (Sprint 2)
+  Flask + basic project editor
+  Responsive performance view
+  JSON export/import
 
 v0.3 — Sync (Sprint 3)
   Ableton Link (python-link)
-  MIDI Clock reception
-  OSC inter-instances basique
+  MIDI Clock reception + emission
+  Basic OSC inter-instance
 
 v0.4 — TUI + SSH (Sprint 4)
   Textual performance view
-  TUI orchestrateur (multi-instances)
+  TUI orchestrator (multi-instance)
 
-v0.5 — Réseau complet (Sprint 5)
+v0.5 — Full Network (Sprint 5)
   mDNS discovery
   WebSocket state broadcast
-  Master orchestrateur
+  Master orchestrator
   ESP32 client (TFT)
 
-v1.0 — Release publique
-  Documentation complète
-  Exemple projects
+v1.0 — Public Release
+  Complete documentation
+  Example projects
   Packaging (pip install dim)
   Docker image
 ```
@@ -715,4 +745,4 @@ v1.0 — Release publique
 *D.I.M — Dawless Is More*
 *"The machine does not lie. It deforms."*
 
-*Cahier des charges v0.1 — Mai 2026 — Olivier Bareau, Scaër, Bretagne*
+*Specification v0.1 — May 2026 — Olivier Bareau, Scaër, Bretagne*

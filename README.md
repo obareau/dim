@@ -7,7 +7,7 @@
 
 It is not a DAW. It is not a MIDI sequencer. It does not control any instrument or plugin.
 It guides the performer — what to play, when, what comes next, with conditional variations —
-like a road book for a rally driver, but for a live music set.
+like a rally road book, but for a live music set.
 
 ---
 
@@ -15,12 +15,12 @@ like a road book for a rally driver, but for a live music set.
 
 Traditional setlists are linear. Live music is not.
 
-D.I.M organizes a performance as **lanes** (instruments/performers),
+D.I.M organizes a performance as **lanes** (instruments / performers),
 **sections** (song parts: intro, verse, chorus, fill…) and **cues** (atomic actions).
 Each cue carries an **instruction** — not just "play this", but also:
 
 - `LOOP 4` — repeat 4 times then advance
-- `JUMP refrain IF 1:2` — jump to the chorus every other pass
+- `JUMP chorus IF 1:2` — jump to the chorus every other pass
 - `GOSUB fill-8bars` — play a fill section and come back
 - `SKIP UNTIL 3:4` — skip this cue for the first 3 passes out of 4
 - `REVERSE` — play the section's cues in reverse order
@@ -35,14 +35,14 @@ D.I.M syncs with your setup via **Ableton Link**, **MIDI Clock**, or OSC.
 
 ### Core
 - Non-linear performance sequencer — BASIC-inspired instruction set
-- Multi-lane: each lane = one instrument, one performer, one role
-- Sections and cues with full control flow (LOOP, JUMP, GOSUB, IF, SKIP, REVERSE)
+- **Variable number of lanes: 1 to X** — one lane per instrument or performer, no upper limit
+- Sections and cues with full control flow: `LOOP` `JUMP` `GOSUB` `IF` `SKIP` `REVERSE`
 - Cross-lane jumps via a dedicated Conductor Lane
 - Conditional logic: nth-pass, ratios, probability, manual trigger
 - Playlist modes per section: all / nth / ratio / custom order
 
 ### Sync
-- **Ableton Link** — peer-to-peer beat sync, auto-discovery on LAN
+- **Ableton Link** — peer-to-peer beat sync, auto-discovery on LAN (highest priority)
 - **MIDI Clock** — receive or send (24 PPQN), DIN + USB
 - **OSC** — native D.I.M protocol for multi-instance orchestration
 
@@ -53,10 +53,10 @@ D.I.M syncs with your setup via **Ableton Link**, **MIDI Clock**, or OSC.
 
 ### Multi-instance Orchestration
 - Multiple D.I.M instances on stage, one master coordinates all
-- Auto-discovery via mDNS (zero config — plug in, it appears)
+- Auto-discovery via mDNS — zero config, plug in and it appears
 - OSC broadcast for transport and sync
-- WebSocket for real-time state
-- Compatible with TouchOSC, Lemur, Max/MSP, PureData
+- WebSocket for real-time state reporting
+- Compatible with TouchOSC, Lemur, Max/MSP, PureData, any OSC-capable tool
 
 ---
 
@@ -64,11 +64,15 @@ D.I.M syncs with your setup via **Ableton Link**, **MIDI Clock**, or OSC.
 
 **Teenage Engineering × Elektron.**
 
-Every pixel has a purpose. The performance view is readable in under 1 second,
+Every pixel has a purpose. The performance view must be readable in under 1 second,
 under stage lighting, with wet hands. Touch targets ≥ 44px. High contrast.
-Compact notation: `↺ 4` `↗ refrain` `⤵ fill` `? 1:2` `░ MUTE`.
+Compact notation: `↺ 4` `↗ chorus` `⤵ fill` `? 1:2` `░ MUTE`.
 
-1 screen for performance. Zero navigation during play.
+One screen for performance. Zero navigation during play.
+
+The lane layout adapts to the number of lanes: few lanes → all visible,
+many lanes → scrollable with always-visible peek of adjacent lanes.
+**Ergonomics drive the display, not an artificial cap.**
 
 ---
 
@@ -104,6 +108,7 @@ dim/
 | Raspberry Pi 4 + 7" screen | Web kiosk (Chromium) | Same web code, touch |
 | Raspberry Pi headless | TUI via SSH | Performance or orchestrator view |
 | iPad / tablet | Web responsive | Touch performance |
+| iPhone / small phone | Web responsive | Single lane focus, swipe to switch |
 | ESP32 + TFT 320×240 | MicroPython client | Current + next cue display |
 | ESP32 + OLED 128×64 | MicroPython client | Current cue + beat counter |
 

@@ -1,14 +1,16 @@
 {
-  "_comment": "D.I.M — Dawless Is More — Example project v1",
+  "_comment": "D.I.M — Dawless Is More — Example project v1.0",
+  "_note": "This example uses 3 lanes to illustrate the model. Projects can have 1 to X lanes.",
   "dim_version": "1.0",
   "project": {
     "id": "proj-example-001",
-    "name": "Set Robōtariis — Live 2026",
+    "name": "Robōtariis Live Set 2026",
     "tempo_bpm": 118.0,
     "time_signature": "4/4",
     "gosub_stack_limit": 4,
     "lanes": [
       {
+        "_comment": "Conductor Lane: orchestrates other lanes. Always pinned to top in UI.",
         "id": "lane-conductor",
         "name": "Conductor",
         "color": "#888888",
@@ -17,7 +19,7 @@
         "sections": [
           {
             "id": "sec-cond-main",
-            "name": "Orchestration principale",
+            "name": "Main Orchestration",
             "type": "custom",
             "color": "#444444",
             "instruction": { "op": "PLAY" },
@@ -25,37 +27,53 @@
             "cues": [
               {
                 "id": "cue-cond-001",
-                "label": "→ Tous : INTRO",
-                "content": "Signal bras levé — tout le monde part sur l'intro",
+                "label": "→ All: INTRO",
+                "content": "Raise arm — everyone starts the intro together",
                 "duration_bars": 0.0,
                 "repeat": 1,
-                "instruction": { "op": "JUMP", "target": "sec-intro", "jump_lane": null },
+                "instruction": { "op": "PLAY" },
                 "enabled": true,
                 "order_index": 0
+              },
+              {
+                "id": "cue-cond-002",
+                "label": "→ Bass: CHORUS",
+                "content": "Point to bass player — trigger their chorus section",
+                "duration_bars": 0.0,
+                "repeat": 1,
+                "instruction": {
+                  "op": "JUMP",
+                  "target": "sec-bass-chorus",
+                  "jump_lane": "lane-bass"
+                },
+                "enabled": true,
+                "order_index": 1
               }
             ]
           }
         ]
       },
       {
+        "_comment": "Synth lane — speed 1:1 (plays at master tempo)",
         "id": "lane-synth",
-        "name": "Synthé principal",
+        "name": "Main Synth",
         "color": "#FF4D26",
         "speed_ratio": "1:1",
         "is_conductor": false,
         "sections": [
           {
             "id": "sec-intro",
-            "name": "Drone d'ouverture",
+            "name": "Opening Drone",
             "type": "intro",
             "color": "#1A1A1A",
+            "_comment": "LOOP 2 on the section = play the whole section twice before advancing",
             "instruction": { "op": "LOOP", "loop_count": 2 },
             "playlist": { "mode": "all" },
             "cues": [
               {
                 "id": "cue-s-001",
-                "label": "Drone grave",
-                "content": "Patch VOID_01 — filtre fermé, cutoff 40% — réverb max — laisse respirer",
+                "label": "Deep Drone",
+                "content": "Patch VOID_01 — filter closed, cutoff 40% — reverb max — let it breathe",
                 "duration_bars": 8.0,
                 "repeat": 1,
                 "instruction": { "op": "PLAY" },
@@ -64,8 +82,8 @@
               },
               {
                 "id": "cue-s-002",
-                "label": "Montée filtre",
-                "content": "Cutoff 40% → 80% sur 4 mesures — automation manuelle",
+                "label": "Filter rise",
+                "content": "Cutoff 40% → 80% over 4 bars — manual automation",
                 "duration_bars": 4.0,
                 "repeat": 1,
                 "instruction": { "op": "PLAY" },
@@ -75,34 +93,36 @@
             ]
           },
           {
-            "id": "sec-couplet",
-            "name": "Couplet A",
-            "type": "couplet",
+            "id": "sec-verse",
+            "name": "Verse A",
+            "type": "verse",
             "color": "#1C2A3A",
             "instruction": { "op": "PLAY" },
+            "_comment": "Playlist mode 'nth:2' = play 1 cue out of 2 (alternating)",
             "playlist": { "mode": "nth", "nth": 2 },
             "cues": [
               {
                 "id": "cue-s-003",
-                "label": "Mélodie principale",
-                "content": "Patch SECTOR-7 — arpège montant — velocity 80",
+                "label": "Main melody",
+                "content": "Patch SECTOR-7 — ascending arp — velocity 80",
                 "duration_bars": 4.0,
                 "repeat": 1,
+                "_comment": "LOOP UNTIL MANUAL = keep looping until performer taps next",
                 "instruction": {
                   "op": "LOOP",
-                  "loop_count": null,
-                  "condition": "UNTIL",
-                  "condition_value": "MANUAL"
+                  "loop_until": true,
+                  "condition": "MANUAL"
                 },
                 "enabled": true,
                 "order_index": 0
               },
               {
                 "id": "cue-s-004",
-                "label": "Variation harmonique",
-                "content": "Shift +5 demi-tons — même patch",
+                "label": "Harmonic variation",
+                "content": "Shift +5 semitones — same patch",
                 "duration_bars": 4.0,
                 "repeat": 1,
+                "_comment": "SKIP 1:2 = skip this cue every other pass",
                 "instruction": { "op": "SKIP", "condition": "1:2" },
                 "enabled": true,
                 "order_index": 1
@@ -110,6 +130,7 @@
             ]
           },
           {
+            "_comment": "Fill section — used as a GOSUB target from chorus",
             "id": "sec-fill",
             "name": "Fill 8 bars",
             "type": "fill",
@@ -120,7 +141,7 @@
               {
                 "id": "cue-s-fill-001",
                 "label": "Noise sweep",
-                "content": "White noise — filtre bandpass — LFO rate max",
+                "content": "White noise — bandpass filter — LFO rate max",
                 "duration_bars": 8.0,
                 "repeat": 1,
                 "instruction": { "op": "PLAY" },
@@ -130,10 +151,11 @@
             ]
           },
           {
-            "id": "sec-refrain",
-            "name": "Refrain",
-            "type": "refrain",
+            "id": "sec-chorus",
+            "name": "Chorus",
+            "type": "chorus",
             "color": "#2A1A0A",
+            "_comment": "GOSUB fill every other pass — then returns to next cue in chorus",
             "instruction": {
               "op": "GOSUB",
               "target": "sec-fill",
@@ -144,7 +166,7 @@
               {
                 "id": "cue-s-005",
                 "label": "Climax",
-                "content": "Patch MACHINE-CORE — tous les oscillateurs — compression max",
+                "content": "Patch MACHINE-CORE — all oscillators — compression max",
                 "duration_bars": 8.0,
                 "repeat": 1,
                 "instruction": { "op": "PLAY" },
@@ -156,6 +178,7 @@
         ]
       },
       {
+        "_comment": "FX lane — speed 1:2 = plays at HALF the master tempo (bars are twice as long)",
         "id": "lane-fx",
         "name": "FX / Noise",
         "color": "#26A0FF",
@@ -164,18 +187,20 @@
         "sections": [
           {
             "id": "sec-fx-intro",
-            "name": "Texture intro",
+            "name": "Intro texture",
             "type": "intro",
             "color": "#0A1A2A",
             "instruction": { "op": "PLAY" },
+            "_comment": "Playlist ratio 3:4 = play 3 cues out of every 4",
             "playlist": { "mode": "ratio", "ratio": "3:4" },
             "cues": [
               {
                 "id": "cue-fx-001",
                 "label": "Granular texture",
-                "content": "Grain size 50ms — position aléatoire — wet 70%",
+                "content": "Grain size 50ms — random position — wet 70%",
                 "duration_bars": 16.0,
                 "repeat": 1,
+                "_comment": "IF 50%: coin flip — either play or mute",
                 "instruction": {
                   "op": "IF",
                   "condition": "50%",
@@ -186,10 +211,37 @@
                 "order_index": 0
               }
             ]
+          },
+          {
+            "id": "sec-bass-chorus",
+            "_comment": "This section is a cross-lane JUMP target (from Conductor lane)",
+            "name": "Bass Chorus",
+            "type": "chorus",
+            "color": "#1A2A1A",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-fx-002",
+                "label": "Sub bass drop",
+                "content": "Patch SUB-CORE — filter open — sidechain pumping",
+                "duration_bars": 8.0,
+                "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true,
+                "order_index": 0
+              }
+            ]
           }
         ]
       }
     ],
-    "arrangement": ["sec-intro", "sec-couplet", "sec-refrain", "sec-couplet", "sec-refrain"]
+    "arrangement": [
+      "sec-intro",
+      "sec-verse",
+      "sec-chorus",
+      "sec-verse",
+      "sec-chorus"
+    ]
   }
 }

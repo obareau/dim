@@ -1,59 +1,61 @@
 # D.I.M — Instruction Set Reference
 
-> L'instruction set de D.I.M est inspiré de BASIC et des structures de contrôle
-> fondamentales : IF/THEN/ELSE, GOTO, GOSUB, LOOP/UNTIL, SKIP/UNTIL, REVERSE/UNTIL.
+> D.I.M's instruction set is directly inspired by BASIC and fundamental control flow
+> structures: IF/THEN/ELSE, GOTO, GOSUB, LOOP/UNTIL, SKIP/UNTIL, REVERSE/UNTIL.
+>
+> Every cue and every section carries exactly **one instruction**.
 
 ---
 
-## Instructions de Cue
+## Cue Instructions
 
-| Instruction | Paramètres | Comportement |
+| Instruction | Parameters | Behavior |
 |---|---|---|
-| `PLAY` | — | Joue le cue, avance au suivant. **Défaut.** |
-| `MUTE` | — | Consomme la durée, rien à afficher/faire. |
-| `LOOP n` | `loop_count: int` | Répète n fois puis avance. |
-| `LOOP UNTIL cond` | `condition` | Répète jusqu'à condition vraie. |
-| `JUMP target` | `target: id` | Saut inconditionnel vers cue ou section. |
-| `JUMP target IF cond` | `target`, `condition` | Saut conditionnel. |
-| `GOSUB section` | `target: section_id` | Appelle une section, retourne ici après. |
-| `SKIP` | — | Saute ce cue (durée = 0, no-op). |
-| `SKIP UNTIL cond` | `condition` | Ignore ce cue jusqu'à condition vraie. |
-| `IF cond THEN inst` | `condition`, `then_inst` | Branchement simple. |
-| `IF cond THEN inst ELSE inst` | `condition`, `then_inst`, `else_inst` | Branchement complet. |
+| `PLAY` | — | Play the cue, advance to next. **Default.** |
+| `MUTE` | — | Consume the duration, nothing to perform. |
+| `LOOP n` | `loop_count: int` | Repeat n times, then advance. |
+| `LOOP UNTIL cond` | `condition` | Repeat until condition becomes true. |
+| `JUMP target` | `target: id` | Unconditional jump to a cue or section. |
+| `JUMP target IF cond` | `target`, `condition` | Conditional jump. |
+| `GOSUB section` | `target: section_id` | Call a section, return here after. |
+| `SKIP` | — | Skip this cue (duration = 0, no-op). |
+| `SKIP UNTIL cond` | `condition` | Skip this cue until condition is true. |
+| `IF cond THEN inst` | `condition`, `then_inst` | Simple branch. |
+| `IF cond THEN inst ELSE inst` | `condition`, `then_inst`, `else_inst` | Full branch. |
 
-## Instructions de Section (en plus des cues)
+## Section Instructions (in addition to all cue instructions)
 
-| Instruction | Paramètres | Comportement |
+| Instruction | Parameters | Behavior |
 |---|---|---|
-| `REVERSE` | — | Lit les cues dans l'ordre inverse. |
-| `REVERSE UNTIL cond` | `condition` | Inverse jusqu'à condition vraie. |
+| `REVERSE` | — | Play cues in reverse order. |
+| `REVERSE UNTIL cond` | `condition` | Reverse until condition, then resume normal order. |
 
 ---
 
 ## Conditions
 
-| Condition | Notation JSON | Sens |
+| Condition | JSON value | Meaning |
 |---|---|---|
-| Toujours | `"ALWAYS"` | Inconditionnel (= PLAY direct) |
-| Jamais | `"NEVER"` | = MUTE |
-| 1 sur N | `"1:2"` `"1:4"` | Joue au 1er passage, saute les N-1 suivants |
-| M sur N | `"3:4"` `"2:3"` | Joue M fois sur N passages |
-| Probabiliste | `"50%"` `"25%"` | Dé lancé à chaque passage |
-| Après N | `"AFTER:4"` | Joue seulement après N passages de la section |
-| Action manuelle | `"MANUAL"` | Attend un tap/déclenchement performer |
+| Always | `"ALWAYS"` | Unconditional (equivalent to direct PLAY or JUMP) |
+| Never | `"NEVER"` | Never triggers (equivalent to MUTE) |
+| 1 out of N | `"1:2"` `"1:4"` | Play on pass 1, skip next N-1 passes |
+| M out of N | `"3:4"` `"2:3"` | Play M times out of every N passes |
+| Probabilistic | `"50%"` `"25%"` | Die rolled at each pass through the section |
+| After N passes | `"AFTER:4"` | Only triggers after N passes of the parent section |
+| Manual trigger | `"MANUAL"` | Wait for a performer tap or external trigger |
 
 ---
 
-## Notation compacte (affichage UI)
+## Compact Notation (UI display)
 
-| Instruction | Badge affiché |
+| Instruction | Badge shown |
 |---|---|
-| `PLAY` | (aucun badge — état par défaut) |
+| `PLAY` | *(no badge — default state)* |
 | `MUTE` | `░ MUTE` |
 | `LOOP 4` | `↺ 4` |
 | `LOOP UNTIL MANUAL` | `↺ ⊙` |
-| `JUMP refrain` | `↗ refrain` |
-| `JUMP refrain IF 1:2` | `↗ refrain  1:2` |
+| `JUMP chorus` | `↗ chorus` |
+| `JUMP chorus IF 1:2` | `↗ chorus  1:2` |
 | `GOSUB fill` | `⤵ fill` |
 | `SKIP` | `⇥` |
 | `SKIP UNTIL 2:4` | `⇥ 2:4` |
@@ -63,62 +65,130 @@
 
 ---
 
-## Pile GOSUB
+## GOSUB — Call Stack
 
-GOSUB empile le point de retour. Profondeur maximum configurable (défaut : 4).
+GOSUB pushes a return address onto the call stack.
+Maximum depth is configurable per project (default: 4).
 
 ```
-ARRANGEMENT :
+ARRANGEMENT:
   sec-A → cue [GOSUB sec-fill] → sec-B
                    ↓
-              sec-fill : cue1, cue2, cue3
-                   ↑ retour automatique vers sec-A, cue suivant
+              sec-fill: cue1, cue2, cue3
+                   ↑ automatically returns to sec-A, next cue
 ```
 
-Si la profondeur est dépassée : `PLAY` forcé + alerte visuelle non-bloquante.
+If the stack depth is exceeded: forced `PLAY` + non-blocking visual alert (2 seconds).
+The performance is never interrupted.
+
+Nested GOSUB (section A calls B which calls C) is valid up to the configured depth.
 
 ---
 
 ## Cross-lane Jump
 
-Un cue dans Lane A peut déclencher un saut dans Lane B :
+A cue in Lane A can trigger a jump in Lane B:
 
 ```json
 {
   "op": "JUMP",
-  "target": "sec-refrain",
-  "jump_lane": "lane-basse"
+  "target": "sec-chorus",
+  "jump_lane": "lane-bass"
 }
 ```
 
-Convention : la **Conductor Lane** (`is_conductor: true`) est dédiée à l'orchestration.
-Les musiciens voient leur propre lane. Le leader voit la Conductor.
+**Conductor Lane convention**: a lane with `is_conductor: true` is dedicated to
+orchestrating other lanes. The band leader watches the Conductor Lane;
+each performer watches their own lane.
+
+Cross-lane GOSUB is also valid: call a section in another lane, return after.
 
 ---
 
-## Exemples
+## JSON Representation
 
-### Cue qui saute au refrain une fois sur deux
+Each instruction is a JSON object on the cue or section:
+
 ```json
-{ "op": "JUMP", "target": "sec-refrain", "condition": "1:2" }
+{ "op": "PLAY" }
+
+{ "op": "MUTE" }
+
+{ "op": "LOOP", "loop_count": 4 }
+
+{ "op": "LOOP", "loop_until": true, "condition": "MANUAL" }
+
+{ "op": "JUMP", "target": "sec-chorus" }
+
+{ "op": "JUMP", "target": "sec-chorus", "condition": "1:2" }
+
+{ "op": "JUMP", "target": "sec-refrain", "jump_lane": "lane-bass" }
+
+{ "op": "GOSUB", "target": "sec-fill-8bars" }
+
+{ "op": "GOSUB", "target": "sec-fill-8bars", "condition": "1:2" }
+
+{ "op": "SKIP" }
+
+{ "op": "SKIP", "condition": "2:4" }
+
+{ "op": "REVERSE" }
+
+{ "op": "REVERSE", "condition": "1:2" }
+
+{
+  "op": "IF",
+  "condition": "50%",
+  "then_inst": { "op": "PLAY" },
+  "else_inst": { "op": "MUTE" }
+}
+
+{
+  "op": "IF",
+  "condition": "1:2",
+  "then_inst": { "op": "JUMP", "target": "sec-chorus" },
+  "else_inst": { "op": "LOOP", "loop_count": 2 }
+}
 ```
 
-### Section qui se joue à l'envers les passes impaires
+---
+
+## Examples
+
+### Jump to chorus every other pass
+```json
+{ "op": "JUMP", "target": "sec-chorus", "condition": "1:2" }
+```
+
+### Section plays in reverse on odd passes
 ```json
 { "op": "REVERSE", "condition": "1:2" }
 ```
 
-### Cue probabiliste (50% de chance d'être muté)
+### Probabilistic cue (50% chance of being muted)
 ```json
-{ "op": "IF", "condition": "50%", "then_inst": {"op":"PLAY"}, "else_inst": {"op":"MUTE"} }
+{ "op": "IF", "condition": "50%",
+  "then_inst": { "op": "PLAY" },
+  "else_inst": { "op": "MUTE" } }
 ```
 
-### Boucle jusqu'à action manuelle du performer
+### Loop until manual performer trigger
 ```json
-{ "op": "LOOP", "condition": "UNTIL", "condition_value": "MANUAL" }
+{ "op": "LOOP", "loop_until": true, "condition": "MANUAL" }
 ```
 
-### Fill appelé en sous-routine 1 fois sur 2
+### Fill called as subroutine every other time
 ```json
 { "op": "GOSUB", "target": "sec-fill-8bars", "condition": "1:2" }
 ```
+
+### Cross-lane: trigger bass lane to jump to chorus
+```json
+{ "op": "JUMP", "target": "sec-chorus", "jump_lane": "lane-bass" }
+```
+
+### Skip this cue for the first 3 passes out of 4
+```json
+{ "op": "SKIP", "condition": "1:4" }
+```
+*(plays only on pass 1, skipped on passes 2, 3, 4, then resets)*
