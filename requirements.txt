@@ -1,0 +1,19 @@
+# D.I.M — Dawless Is More
+# Core dependencies
+
+# Web + réseau
+flask>=3.0,<4
+flask-socketio>=5.0
+
+# OSC
+python-osc>=1.8
+
+# mDNS discovery
+zeroconf>=0.80
+
+# TUI
+textual>=0.50
+
+# Sync protocols
+python-rtmidi>=1.5         # MIDI Clock
+# python-link              # Ableton Link — install from source (see docs/sync_protocols.md)
