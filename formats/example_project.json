@@ -1,16 +1,15 @@
 {
-  "_comment": "D.I.M — Dawless Is More — Example project v1.0",
-  "_note": "This example uses 3 lanes to illustrate the model. Projects can have 1 to X lanes.",
+  "_comment": "D.I.M — Robōtariis Live Set 2026 — enriched example",
   "dim_version": "1.0",
   "project": {
-    "id": "proj-example-001",
+    "id": "proj-robotariis-2026",
     "name": "Robōtariis Live Set 2026",
     "tempo_bpm": 118.0,
     "time_signature": "4/4",
     "gosub_stack_limit": 4,
     "lanes": [
+
       {
-        "_comment": "Conductor Lane: orchestrates other lanes. Always pinned to top in UI.",
         "id": "lane-conductor",
         "name": "Conductor",
         "color": "#888888",
@@ -19,42 +18,351 @@
         "sections": [
           {
             "id": "sec-cond-main",
-            "name": "Main Orchestration",
+            "name": "Set Orchestration",
             "type": "custom",
-            "color": "#444444",
+            "color": "#333333",
             "instruction": { "op": "PLAY" },
             "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-cond-001",
-                "label": "→ All: INTRO",
-                "content": "Raise arm — everyone starts the intro together",
-                "duration_bars": 0.0,
-                "repeat": 1,
+                "id": "cue-c-01", "label": "→ All: INTRO",
+                "content": "Raise arm — all performers enter together",
+                "duration_bars": 0.0, "repeat": 1,
                 "instruction": { "op": "PLAY" },
-                "enabled": true,
-                "order_index": 0
+                "enabled": true, "order_index": 0
               },
               {
-                "id": "cue-cond-002",
-                "label": "→ Bass: CHORUS",
-                "content": "Point to bass player — trigger their chorus section",
-                "duration_bars": 0.0,
-                "repeat": 1,
-                "instruction": {
-                  "op": "JUMP",
-                  "target": "sec-bass-chorus",
-                  "jump_lane": "lane-bass"
-                },
-                "enabled": true,
-                "order_index": 1
+                "id": "cue-c-02", "label": "→ Hold intro",
+                "content": "Hold until energy builds — manual release",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-c-03", "label": "→ Drums: GROOVE",
+                "content": "Nod to drummer — switch to main groove",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-drums-groove", "jump_lane": "lane-drums" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-c-04", "label": "→ FX: MID TEX",
+                "content": "Cue FX operator — mid texture layer enters",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-fx-mid", "jump_lane": "lane-fx" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-c-05", "label": "→ All: CHORUS",
+                "content": "Both arms — peak intensity — chorus section",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-c-06", "label": "→ Hold chorus",
+                "content": "Sustain at peak — manual decision",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 5
+              },
+              {
+                "id": "cue-c-07", "label": "→ Drums: BREAK",
+                "content": "Slash gesture — drummer goes to break",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-drums-break", "jump_lane": "lane-drums" },
+                "enabled": true, "order_index": 6
+              },
+              {
+                "id": "cue-c-08", "label": "→ FX: OUTRO",
+                "content": "Wind down — FX layer fades",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-fx-outro", "jump_lane": "lane-fx" },
+                "enabled": true, "order_index": 7
+              },
+              {
+                "id": "cue-c-09", "label": "→ All: OUTRO",
+                "content": "Slow cross-fade — tempo will drop — follow",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 8
+              },
+              {
+                "id": "cue-c-10", "label": "→ All: END",
+                "content": "Drop arm — silence — let decay ring",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 9
               }
             ]
           }
         ]
       },
+
       {
-        "_comment": "Synth lane — speed 1:1 (plays at master tempo)",
+        "id": "lane-drums",
+        "name": "Drums / Rhythm",
+        "color": "#E8C830",
+        "speed_ratio": "1:1",
+        "is_conductor": false,
+        "sections": [
+          {
+            "id": "sec-drums-pulse",
+            "name": "Industrial Pulse",
+            "type": "intro",
+            "color": "#1A1A00",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-d-01", "label": "KIK sparse",
+                "content": "4 on floor — velocity 60 — sparse ghost snare",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-d-02", "label": "KIK + HH 16th",
+                "content": "Add closed HH sixteenths — vel 40",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-d-03", "label": "KIK SN sparse",
+                "content": "Snare on 3 — raw — no reverb",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 2 },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-d-04", "label": "░ MUTE",
+                "content": "Cut everything — let silence breathe",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-d-05", "label": "Metal perc",
+                "content": "Industrial hits on 2+4 — flam on beat 4",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-d-06", "label": "Clap layer",
+                "content": "Layered claps — reverb long — vel 70",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "IF", "condition": "50%", "then_inst": { "op": "PLAY" }, "else_inst": { "op": "MUTE" } },
+                "enabled": true, "order_index": 5
+              },
+              {
+                "id": "cue-d-07", "label": "Triplet roll",
+                "content": "Snare triplet build — 2 bars crescendo",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 6
+              },
+              {
+                "id": "cue-d-08", "label": "Full pulse",
+                "content": "All elements — full industrial pattern",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 3 },
+                "enabled": true, "order_index": 7
+              }
+            ]
+          },
+          {
+            "id": "sec-drums-groove",
+            "name": "Main Groove",
+            "type": "verse",
+            "color": "#2A2000",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-dg-01", "label": "Groove A",
+                "content": "Syncopated KIK — off-beat SN — tension",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-dg-02", "label": "+ Ghost SN",
+                "content": "Add ghost snares vel 30 — groove thickens",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-dg-03", "label": "HH open",
+                "content": "Open HH on 2+4 — dirty — vintage feel",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "SKIP", "condition": "1:2" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-dg-04", "label": "Groove B",
+                "content": "Variation — KIK doubled on beat 3e",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-dg-05", "label": "░ MUTE bar",
+                "content": "One bar silence — drops on beat 1 next bar",
+                "duration_bars": 1.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-dg-06", "label": "Fill →",
+                "content": "Go to fill section — come back",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "GOSUB", "target": "sec-drums-fill", "condition": "1:4" },
+                "enabled": true, "order_index": 5
+              },
+              {
+                "id": "cue-dg-07", "label": "Groove C",
+                "content": "Ride cymbal pattern — more jazz feel",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 6
+              },
+              {
+                "id": "cue-dg-08", "label": "Groove D peak",
+                "content": "Everything in — max density — hold",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 7
+              },
+              {
+                "id": "cue-dg-09", "label": "↗ CHORUS",
+                "content": "Jump to drop section on cue",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-drums-drop" },
+                "enabled": true, "order_index": 8
+              }
+            ]
+          },
+          {
+            "id": "sec-drums-fill",
+            "name": "Fill",
+            "type": "fill",
+            "color": "#1A1500",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-df-01", "label": "Tom roll",
+                "content": "Floor → rack tom — 2-bar roll — crescendo",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-df-02", "label": "Snare burst",
+                "content": "Rapid snare bursts — 1 bar",
+                "duration_bars": 1.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-df-03", "label": "Crash + KIK",
+                "content": "Crash on 1 — double KIK — resolve",
+                "duration_bars": 1.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          },
+          {
+            "id": "sec-drums-break",
+            "name": "Break",
+            "type": "fill",
+            "color": "#2A1000",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-db-01", "label": "░ Drop",
+                "content": "Everything cuts — only reverb tail",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-db-02", "label": "KIK alone",
+                "content": "Solitary KIK — 4 on floor — minimal",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-db-03", "label": "Rebuild",
+                "content": "Gradually add elements bar by bar",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-db-04", "label": "↗ DROP",
+                "content": "Release — back to full groove",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-drums-drop" },
+                "enabled": true, "order_index": 3
+              }
+            ]
+          },
+          {
+            "id": "sec-drums-drop",
+            "name": "Drop",
+            "type": "chorus",
+            "color": "#3A2000",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-dd-01", "label": "DROP full",
+                "content": "All elements — maximum intensity — tight",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 2 },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-dd-02", "label": "KIK double",
+                "content": "Double KIK pattern — fast 16th feels",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-dd-03", "label": "░ Breath",
+                "content": "2-bar silence in the chaos",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-dd-04", "label": "DROP full",
+                "content": "Resume — even more compressed",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-dd-05", "label": "⇐ REV fill",
+                "content": "Reverse the fill section — backward energy",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "REVERSE" },
+                "enabled": true, "order_index": 4
+              }
+            ]
+          }
+        ]
+      },
+
+      {
         "id": "lane-synth",
         "name": "Main Synth",
         "color": "#FF4D26",
@@ -65,30 +373,51 @@
             "id": "sec-intro",
             "name": "Opening Drone",
             "type": "intro",
-            "color": "#1A1A1A",
-            "_comment": "LOOP 2 on the section = play the whole section twice before advancing",
+            "color": "#1A0D00",
             "instruction": { "op": "LOOP", "loop_count": 2 },
             "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-s-001",
-                "label": "Deep Drone",
-                "content": "Patch VOID_01 — filter closed, cutoff 40% — reverb max — let it breathe",
-                "duration_bars": 8.0,
-                "repeat": 1,
+                "id": "cue-s-01", "label": "VOID_01 init",
+                "content": "Patch VOID_01 — filter closed — cutoff 20% — reverb max",
+                "duration_bars": 8.0, "repeat": 1,
                 "instruction": { "op": "PLAY" },
-                "enabled": true,
-                "order_index": 0
+                "enabled": true, "order_index": 0
               },
               {
-                "id": "cue-s-002",
-                "label": "Filter rise",
-                "content": "Cutoff 40% → 80% over 4 bars — manual automation",
-                "duration_bars": 4.0,
-                "repeat": 1,
+                "id": "cue-s-02", "label": "Filter open",
+                "content": "Cutoff 20% → 60% over 4 bars — slow automation",
+                "duration_bars": 4.0, "repeat": 1,
                 "instruction": { "op": "PLAY" },
-                "enabled": true,
-                "order_index": 1
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-s-03", "label": "LFO slow",
+                "content": "LFO on cutoff — rate 0.1Hz — depth 30%",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 2 },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-s-04", "label": "░ Breath",
+                "content": "Kill synth — let reverb tail decay",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-s-05", "label": "Drone rise",
+                "content": "Slow pitch rise +2 semitones over 8 bars",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-s-06", "label": "Filter sweep",
+                "content": "Cutoff 40% → 90% — snap to verse patch",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 5
               }
             ]
           },
@@ -98,55 +427,108 @@
             "type": "verse",
             "color": "#1C2A3A",
             "instruction": { "op": "PLAY" },
-            "_comment": "Playlist mode 'nth:2' = play 1 cue out of 2 (alternating)",
-            "playlist": { "mode": "nth", "nth": 2 },
+            "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-s-003",
-                "label": "Main melody",
-                "content": "Patch SECTOR-7 — ascending arp — velocity 80",
-                "duration_bars": 4.0,
-                "repeat": 1,
-                "_comment": "LOOP UNTIL MANUAL = keep looping until performer taps next",
-                "instruction": {
-                  "op": "LOOP",
-                  "loop_until": true,
-                  "condition": "MANUAL"
-                },
-                "enabled": true,
-                "order_index": 0
+                "id": "cue-sv-01", "label": "SECTOR-7 arp",
+                "content": "Patch SECTOR-7 — ascending arp — vel 80 — transpose 0",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 0
               },
               {
-                "id": "cue-s-004",
-                "label": "Harmonic variation",
-                "content": "Shift +5 semitones — same patch",
-                "duration_bars": 4.0,
-                "repeat": 1,
-                "_comment": "SKIP 1:2 = skip this cue every other pass",
+                "id": "cue-sv-02", "label": "+5 shift",
+                "content": "Transpose +5 semitones — same patch — higher tension",
+                "duration_bars": 4.0, "repeat": 1,
                 "instruction": { "op": "SKIP", "condition": "1:2" },
-                "enabled": true,
-                "order_index": 1
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sv-03", "label": "Chord stab",
+                "content": "Short chord stabs on beat 1+3 — vel 90",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-sv-04", "label": "░ MUTE 2",
+                "content": "Silence for 2 bars — breath before build",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-sv-05", "label": "ARP ascend",
+                "content": "Wide arp pattern — 3 octave range — vel 70",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "IF", "condition": "1:2", "then_inst": { "op": "PLAY" }, "else_inst": { "op": "JUMP", "target": "sec-verse-build" } },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-sv-06", "label": "Pad layer",
+                "content": "Add pad under arp — detuned +8 cents — lush",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 5
+              },
+              {
+                "id": "cue-sv-07", "label": "Filter close",
+                "content": "Cutoff 80% → 30% — tension builds",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 6
+              },
+              {
+                "id": "cue-sv-08", "label": "↗ BUILD",
+                "content": "Transition — jump to build section",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-verse-build" },
+                "enabled": true, "order_index": 7
               }
             ]
           },
           {
-            "_comment": "Fill section — used as a GOSUB target from chorus",
-            "id": "sec-fill",
-            "name": "Fill 8 bars",
+            "id": "sec-verse-build",
+            "name": "Build",
             "type": "fill",
-            "color": "#2A1A2A",
+            "color": "#2A1A00",
             "instruction": { "op": "PLAY" },
             "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-s-fill-001",
-                "label": "Noise sweep",
-                "content": "White noise — bandpass filter — LFO rate max",
-                "duration_bars": 8.0,
-                "repeat": 1,
+                "id": "cue-sb-01", "label": "Stutter arp",
+                "content": "Stuttered arp — gate 50% — rising tension",
+                "duration_bars": 4.0, "repeat": 1,
                 "instruction": { "op": "PLAY" },
-                "enabled": true,
-                "order_index": 0
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-sb-02", "label": "Detune rise",
+                "content": "Detune +0 → +20 cents over 4 bars",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sb-03", "label": "White noise +",
+                "content": "Layer white noise — bandpass — vol 40%",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-sb-04", "label": "HOLD",
+                "content": "Manual hold — wait for the right moment",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-sb-05", "label": "↗ CHORUS",
+                "content": "Release into chorus — max energy",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-chorus" },
+                "enabled": true, "order_index": 4
               }
             ]
           },
@@ -154,31 +536,134 @@
             "id": "sec-chorus",
             "name": "Chorus",
             "type": "chorus",
-            "color": "#2A1A0A",
-            "_comment": "GOSUB fill every other pass — then returns to next cue in chorus",
-            "instruction": {
-              "op": "GOSUB",
-              "target": "sec-fill",
-              "condition": "1:2"
-            },
+            "color": "#3A1A00",
+            "instruction": { "op": "GOSUB", "target": "sec-fill", "condition": "1:2" },
             "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-s-005",
-                "label": "Climax",
+                "id": "cue-sc-01", "label": "MACHINE-CORE",
                 "content": "Patch MACHINE-CORE — all oscillators — compression max",
-                "duration_bars": 8.0,
-                "repeat": 1,
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 2 },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-sc-02", "label": "Chord stab peak",
+                "content": "Hard stabs — vel 127 — root + 5th + octave",
+                "duration_bars": 4.0, "repeat": 1,
                 "instruction": { "op": "PLAY" },
-                "enabled": true,
-                "order_index": 0
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sc-03", "label": "░ Void drop",
+                "content": "Total silence — 1 bar — shock effect",
+                "duration_bars": 1.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-sc-04", "label": "MACHINE-CORE 2",
+                "content": "Resume — detune +12 cents — wider",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-sc-05", "label": "Sub layer",
+                "content": "Sub bass note — 1 octave down — pumping",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "IF", "condition": "50%", "then_inst": { "op": "PLAY" }, "else_inst": { "op": "MUTE" } },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-sc-06", "label": "Pitch bend down",
+                "content": "Bend -2 semitones over 2 bars — resolution",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 5
+              },
+              {
+                "id": "cue-sc-07", "label": "HOLD chorus",
+                "content": "Hold at peak — manual decision to break or outro",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 6
+              }
+            ]
+          },
+          {
+            "id": "sec-fill",
+            "name": "Fill 8 bars",
+            "type": "fill",
+            "color": "#2A0A2A",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-sf-01", "label": "Noise sweep",
+                "content": "White noise — bandpass — LFO rate max",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-sf-02", "label": "Cascade",
+                "content": "Pitch cascade down 2 octaves — free fall",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sf-03", "label": "Reverse pad",
+                "content": "Reversed pad sample — 4 bars — tension",
+                "duration_bars": 2.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          },
+          {
+            "id": "sec-outro",
+            "name": "Outro",
+            "type": "outro",
+            "color": "#0D0D1A",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-so-01", "label": "Filter close",
+                "content": "Cutoff 70% → 10% — 8-bar slow close",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-so-02", "label": "Reverb swell",
+                "content": "Reverb size max — dry 0% — pure space",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-so-03", "label": "░ Fade",
+                "content": "Volume 100% → 0% — 4 bars",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-so-04", "label": "░ Silence",
+                "content": "Complete silence — hold until end gesture",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 3
               }
             ]
           }
         ]
       },
+
       {
-        "_comment": "FX lane — speed 1:2 = plays at HALF the master tempo (bars are twice as long)",
         "id": "lane-fx",
         "name": "FX / Noise",
         "color": "#26A0FF",
@@ -187,61 +672,203 @@
         "sections": [
           {
             "id": "sec-fx-intro",
-            "name": "Intro texture",
+            "name": "Intro Texture",
             "type": "intro",
-            "color": "#0A1A2A",
+            "color": "#0A1525",
             "instruction": { "op": "PLAY" },
-            "_comment": "Playlist ratio 3:4 = play 3 cues out of every 4",
-            "playlist": { "mode": "ratio", "ratio": "3:4" },
+            "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-fx-001",
-                "label": "Granular texture",
-                "content": "Grain size 50ms — random position — wet 70%",
-                "duration_bars": 16.0,
-                "repeat": 1,
-                "_comment": "IF 50%: coin flip — either play or mute",
-                "instruction": {
-                  "op": "IF",
-                  "condition": "50%",
-                  "then_inst": { "op": "PLAY" },
-                  "else_inst": { "op": "MUTE" }
-                },
-                "enabled": true,
-                "order_index": 0
+                "id": "cue-fx-01", "label": "Granular atmo",
+                "content": "Grain size 50ms — random pos — wet 60% — very slow",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "IF", "condition": "50%", "then_inst": { "op": "PLAY" }, "else_inst": { "op": "MUTE" } },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-fx-02", "label": "Wind layer",
+                "content": "Noise filtered @ 800Hz — slow LFO pan — vol 30%",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-fx-03", "label": "░ Gap",
+                "content": "8-bar silence — let drone breathe",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-fx-04", "label": "Metal scrape",
+                "content": "Contact mic sample — pitched down -12st",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-fx-05", "label": "Crackle HF",
+                "content": "High-freq crackle — vel random — sparse",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "SKIP", "condition": "1:2" },
+                "enabled": true, "order_index": 4
+              }
+            ]
+          },
+          {
+            "id": "sec-fx-mid",
+            "name": "Mid Texture",
+            "type": "verse",
+            "color": "#0A1A25",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-fm-01", "label": "Industrial hum",
+                "content": "60Hz hum + harmonics — heavy machinery feel",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 2 },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-fm-02", "label": "Freq sweep",
+                "content": "Bandpass sweep 200Hz → 4kHz over 8 bars",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-fm-03", "label": "░ Void",
+                "content": "Complete cut — sudden silence",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-fm-04", "label": "Resonator",
+                "content": "Resonant filter 900Hz — self-oscillation 80%",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "IF", "condition": "1:2", "then_inst": { "op": "PLAY" }, "else_inst": { "op": "SKIP" } },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-fm-05", "label": "Glitch burst",
+                "content": "Random gate bursts — vel random — chaotic",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-fm-06", "label": "Tape crunch",
+                "content": "Saturated tape sim — wow+flutter — organic",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "SKIP", "condition": "1:2" },
+                "enabled": true, "order_index": 5
+              },
+              {
+                "id": "cue-fm-07", "label": "HOLD texture",
+                "content": "Hold current texture — manual advance",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 6
               }
             ]
           },
           {
             "id": "sec-bass-chorus",
-            "_comment": "This section is a cross-lane JUMP target (from Conductor lane)",
             "name": "Bass Chorus",
             "type": "chorus",
-            "color": "#1A2A1A",
+            "color": "#0A251A",
             "instruction": { "op": "PLAY" },
             "playlist": { "mode": "all" },
             "cues": [
               {
-                "id": "cue-fx-002",
-                "label": "Sub bass drop",
+                "id": "cue-bc-01", "label": "SUB-CORE drop",
                 "content": "Patch SUB-CORE — filter open — sidechain pumping",
-                "duration_bars": 8.0,
-                "repeat": 1,
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_count": 2 },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-bc-02", "label": "Sub glide",
+                "content": "Portamento on — glide between root notes",
+                "duration_bars": 8.0, "repeat": 1,
                 "instruction": { "op": "PLAY" },
-                "enabled": true,
-                "order_index": 0
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-bc-03", "label": "░ Pump gap",
+                "content": "Sidechain peak — total duck — 1 bar",
+                "duration_bars": 1.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-bc-04", "label": "Sub +oct",
+                "content": "Add octave above — thick low end",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-bc-05", "label": "Distort sub",
+                "content": "Drive sub into saturation — controlled dirt",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "IF", "condition": "50%", "then_inst": { "op": "PLAY" }, "else_inst": { "op": "SKIP" } },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-bc-06", "label": "HOLD bass",
+                "content": "Hold bass pattern — manual release",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 5
+              }
+            ]
+          },
+          {
+            "id": "sec-fx-outro",
+            "name": "Outro Texture",
+            "type": "outro",
+            "color": "#0A0A1A",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-fo-01", "label": "Decay swell",
+                "content": "All FX fading — long reverb tail — 16 bars",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-fo-02", "label": "░ Fade out",
+                "content": "Slow fade to silence — 8 bars",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "MUTE" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-fo-03", "label": "░ End",
+                "content": "Complete silence — hold",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 2
               }
             ]
           }
         ]
       }
+
     ],
     "arrangement": [
       "sec-intro",
       "sec-verse",
+      "sec-verse-build",
       "sec-chorus",
       "sec-verse",
-      "sec-chorus"
+      "sec-chorus",
+      "sec-outro"
     ]
   }
 }

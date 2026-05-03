@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+{% block title %}Editor{% endblock %}
+
+{% block content %}
+<div class="editor-wrap">
+
+  <div class="editor-topbar">
+    <div class="editor-project-info">
+      <span class="project-name-mono">{{ meta.name }}</span>
+      <span class="meta-badge" id="tempo-badge" title="Click to edit tempo">{{ meta.tempo_bpm }} BPM</span>
+      <span class="meta-badge">{{ meta.time_signature }}</span>
+    </div>
+    <div class="editor-actions">
+      <button class="btn btn-ghost" onclick="exportJSON()">EXPORT JSON</button>
+      <a href="/performance" class="btn btn-primary">▶ PERFORM</a>
+    </div>
+  </div>
+
+  <div class="editor-grid">
+
+    {% for lane in lanes %}
+    <div class="editor-lane" data-lane-id="{{ lane.id }}">
+
+      <div class="lane-header" style="border-left-color: {{ lane.color }}">
+        <span class="lane-name">
+          {% if lane.is_conductor %}⊛ {% endif %}{{ lane.name }}
+        </span>
+        <span class="lane-speed">{{ lane.speed_ratio }}</span>
+      </div>
+
+      <div class="lane-sections">
+        {% for sec in lane.sections %}
+        <div class="editor-section" data-section-id="{{ sec.id }}" style="--sec-color: {{ sec.color }}">
+
+          <div class="section-header" onclick="toggleSection(this)">
+            <span class="section-type-badge">{{ sec.type | upper }}</span>
+            <span class="section-name">{{ sec.name }}</span>
+            {% if sec.badge %}
+            <span class="instruction-badge">{{ sec.badge }}</span>
+            {% endif %}
+            <span class="section-cue-count">{{ sec.cues | length }} cue(s)</span>
+            <span class="section-chevron">▾</span>
+          </div>
+
+          <div class="section-cues collapsed">
+            {% if sec.cues %}
+            <table class="cue-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>LABEL</th>
+                  <th>BARS</th>
+                  <th>INSTRUCTION</th>
+                  <th>CONTENT</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for cue in sec.cues | sort(attribute='order_index') %}
+                <tr class="cue-row {% if not cue.enabled %}cue-disabled{% endif %}"
+                    data-cue-id="{{ cue.id }}">
+                  <td class="cue-idx mono">{{ loop.index }}</td>
+                  <td class="cue-label">{{ cue.label }}</td>
+                  <td class="cue-bars mono">{{ cue.duration_bars }}</td>
+                  <td class="cue-badge">
+                    {% if cue.badge %}
+                    <span class="instruction-badge">{{ cue.badge }}</span>
+                    {% else %}
+                    <span class="badge-play">▶</span>
+                    {% endif %}
+                  </td>
+                  <td class="cue-content text-dim">{{ cue.content | truncate(60) }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {% else %}
+            <p class="empty-section">No cues in this section.</p>
+            {% endif %}
+          </div>
+
+        </div>
+        {% endfor %}
+
+        {% if not lane.sections %}
+        <p class="empty-lane">No sections in this lane.</p>
+        {% endif %}
+      </div>
+
+    </div>
+    {% endfor %}
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script>
+  function toggleSection(header) {
+    const cues = header.nextElementSibling;
+    const chevron = header.querySelector('.section-chevron');
+    cues.classList.toggle('collapsed');
+    chevron.textContent = cues.classList.contains('collapsed') ? '▾' : '▴';
+  }
+
+  function exportJSON() {
+    fetch('/api/project')
+      .then(r => r.json())
+      .then(data => {
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = (data.project?.name || 'project').replace(/\s+/g, '_') + '.json';
+        a.click();
+      });
+  }
+
+  // Click tempo badge to edit
+  document.getElementById('tempo-badge').addEventListener('click', function() {
+    const bpm = parseFloat(prompt('New tempo (BPM):', this.textContent));
+    if (bpm > 0) {
+      fetch('/api/transport/tempo', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bpm }),
+      }).then(() => { this.textContent = bpm + ' BPM'; });
+    }
+  });
+</script>
+{% endblock %}

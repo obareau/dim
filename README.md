@@ -114,31 +114,51 @@ dim/
 
 ---
 
-## Status
-
-🚧 **Pre-alpha — specification phase**
-
-The full specification is in [`SPECS.md`](SPECS.md).
-
-Sprint 1 is the pure Python `core/` — no framework, no UI, fully testable in CLI.
+## Quick Start
 
 ```bash
-# Target (not yet implemented)
-python -m dim.cli play formats/example_project.json
+# From source
+git clone https://github.com/obareau/dim && cd dim
+python3 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+./dim formats/example_project.json
+# → http://localhost:5001
+
+# pip install
+pip install dim-sequencer
+dim formats/my_show.json
+
+# Docker
+docker run -p 5001:5001 ghcr.io/obareau/dim:latest
+```
+
+See [`docs/quickstart.md`](docs/quickstart.md) for full setup instructions.
+
+---
+
+## Status
+
+✅ **v0.5.0 — Beta**
+
+All sprints 1–5 complete. 135 tests passing.
+
+```bash
+./dim test
+# 135 passed, 1 skipped
 ```
 
 ---
 
 ## Roadmap
 
-| Version | Focus |
-|---|---|
-| v0.1 | Core — pure Python, full instruction set, CLI playback |
-| v0.2 | Web interface — editor + performance view |
-| v0.3 | Sync — Ableton Link, MIDI Clock, OSC |
-| v0.4 | TUI + SSH orchestrator |
-| v0.5 | Full network — mDNS, multi-instance, ESP32 client |
-| v1.0 | Public release — packaging, Docker, documentation |
+| Version | Focus | Status |
+|---|---|---|
+| v0.1 | Core — pure Python, full instruction set, CLI playback | ✅ |
+| v0.2 | Web interface — editor + performance view | ✅ |
+| v0.3 | Sync — Ableton Link, MIDI Clock, OSC | ✅ |
+| v0.4 | TUI + debug launcher | ✅ |
+| v0.5 | Network — mDNS, multi-instance orchestration, ESP32 client | ✅ |
+| v1.0 | Packaging (pip + Docker), docs, public release | 🚧 |
 
 ---
 

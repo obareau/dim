@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="home-wrap">
+
+  {% if message %}
+  <div class="alert">{{ message }}</div>
+  {% endif %}
+
+  <header class="home-header">
+    <h1 class="dim-wordmark">D<span class="dim-dot">·</span>I<span class="dim-dot">·</span>M</h1>
+    <p class="dim-tagline">Dawless Is More — Performance Sequencer for Human Musicians</p>
+  </header>
+
+  <section class="home-section">
+    <h2 class="section-title">LOAD PROJECT</h2>
+
+    <div class="upload-zone" id="upload-zone">
+      <p class="upload-hint">Drop a <code>.json</code> project file here, or click to browse</p>
+      <input type="file" id="file-input" accept=".json" style="display:none">
+      <button class="btn btn-secondary" onclick="document.getElementById('file-input').click()">
+        OPEN FILE
+      </button>
+    </div>
+
+    <div class="paste-zone">
+      <label class="label-mono">or paste JSON below</label>
+      <textarea id="json-paste" class="json-input" placeholder='{ "dim_version": "1.0", "project": { ... } }'></textarea>
+      <button class="btn btn-primary" onclick="loadFromPaste()">LOAD JSON</button>
+    </div>
+
+    <div id="load-feedback" class="feedback" style="display:none"></div>
+  </section>
+
+  {% if project %}
+  <section class="home-section">
+    <h2 class="section-title">CURRENT PROJECT</h2>
+    <div class="project-card">
+      <div class="project-card-name">{{ project.project.name }}</div>
+      <div class="project-card-meta">
+        <span class="meta-badge">{{ project.project.tempo_bpm }} BPM</span>
+        <span class="meta-badge">{{ project.project.time_signature }}</span>
+        <span class="meta-badge">{{ project.project.lanes | length }} lane(s)</span>
+      </div>
+      <div class="project-card-lanes">
+        {% for lane in project.project.lanes %}
+        <span class="lane-pill" style="border-color: {{ lane.color }}; color: {{ lane.color }}">
+          {% if lane.is_conductor %}⊛ {% endif %}{{ lane.name }}
+        </span>
+        {% endfor %}
+      </div>
+      <div class="project-card-actions">
+        <a href="/editor" class="btn btn-secondary">EDIT</a>
+        <a href="/performance" class="btn btn-primary">PERFORM</a>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/editor.js') }}"></script>
+<script>
+  const dropZone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault();
+    dropZone.classList.remove('drag-over');
+    const file = e.dataTransfer.files[0];
+    if (file) readAndLoad(file);
+  });
+  fileInput.addEventListener('change', e => {
+    const file = e.target.files[0];
+    if (file) readAndLoad(file);
+  });
+
+  function readAndLoad(file) {
+    const reader = new FileReader();
+    reader.onload = ev => loadProjectJSON(ev.target.result);
+    reader.readAsText(file);
+  }
+
+  function loadFromPaste() {
+    loadProjectJSON(document.getElementById('json-paste').value);
+  }
+
+  function loadProjectJSON(text) {
+    let data;
+    try { data = JSON.parse(text); }
+    catch(e) { showFeedback('Invalid JSON: ' + e.message, 'error'); return; }
+
+    fetch('/api/project', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+    .then(r => r.json())
+    .then(res => {
+      if (res.ok) {
+        showFeedback('✓ Loaded: ' + res.name + ' (' + res.lanes + ' lanes)', 'ok');
+        setTimeout(() => location.reload(), 800);
+      } else {
+        showFeedback('Error: ' + res.error, 'error');
+      }
+    })
+    .catch(e => showFeedback('Network error', 'error'));
+  }
+
+  function showFeedback(msg, type) {
+    const el = document.getElementById('load-feedback');
+    el.textContent = msg;
+    el.className = 'feedback ' + type;
+    el.style.display = 'block';
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,35 @@
+# D.I.M — docker-compose.yml
+# Usage:
+#   docker compose up                          # start with no project
+#   docker compose up -e DIM_PROJECT=/project.json   # with a project file
+#   docker compose run --rm dim dim version    # check version
+
+version: "3.9"
+
+services:
+  dim:
+    build: .
+    image: dim:latest
+    container_name: dim
+    ports:
+      - "5001:5001"
+    # Mount a project file:
+    #   volumes:
+    #     - ./formats/example_project.json:/project.json
+    # Then set the env:
+    #   environment:
+    #     - DIM_PROJECT=/project.json
+    environment:
+      - DIM_HOST=0.0.0.0
+      - DIM_PORT=5001
+      # - DIM_PROJECT=/project.json
+    # For mDNS discovery, use host networking (Linux only):
+    # network_mode: host
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c",
+             "import urllib.request; urllib.request.urlopen('http://localhost:5001/api/state')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s

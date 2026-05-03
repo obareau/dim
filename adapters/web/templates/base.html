@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}D.I.M{% endblock %} — Dawless Is More</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dim.css') }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="{% block body_class %}{% endblock %}">
+
+  {% block topnav %}
+  <nav class="topnav">
+    <span class="topnav-logo">D.I.M</span>
+    <span class="topnav-sep">|</span>
+    <a href="/" class="topnav-link {% if request.path == '/' %}active{% endif %}">HOME</a>
+    <a href="/editor" class="topnav-link {% if request.path == '/editor' %}active{% endif %}">EDITOR</a>
+    <a href="/performance" class="topnav-link {% if request.path == '/performance' %}active{% endif %}">PERFORM</a>
+    <div class="topnav-spacer"></div>
+    <span class="topnav-status" id="link-status" title="Connection status"></span>
+  </nav>
+  {% endblock %}
+
+  <main class="main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script>
+    const socket = io({ transports: ['websocket', 'polling'] });
+    socket.on('connect', () => {
+      const s = document.getElementById('link-status');
+      if (s) { s.textContent = '● LIVE'; s.classList.add('live'); }
+    });
+    socket.on('disconnect', () => {
+      const s = document.getElementById('link-status');
+      if (s) { s.textContent = '○ OFFLINE'; s.classList.remove('live'); }
+    });
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

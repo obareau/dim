@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# D.I.M — launcher script
+# Usage: ./dim [project.json] [--port 5100]
+#        ./dim cli play formats/example_project.json
+DIM_DIR="$(cd "$(dirname "$0")" && pwd)"
+PYTHON="$DIM_DIR/.venv/bin/python"
+
+if [ ! -f "$PYTHON" ]; then
+  echo "  No venv found. Run:"
+  echo "    python3 -m venv .venv"
+  echo "    .venv/bin/pip install flask flask-socketio pytest"
+  exit 1
+fi
+
+if [ "$1" = "cli" ]; then
+  shift
+  PYTHONPATH="$DIM_DIR" "$PYTHON" "$DIM_DIR/cli.py" "$@"
+elif [ "$1" = "tui" ]; then
+  shift
+  PYTHONPATH="$DIM_DIR" "$PYTHON" "$DIM_DIR/run_tui.py" "$@"
+elif [ "$1" = "debug" ]; then
+  shift
+  PYTHONPATH="$DIM_DIR" "$PYTHON" "$DIM_DIR/run_debug.py" "$@"
+elif [ "$1" = "test" ]; then
+  shift
+  PYTHONPATH="$DIM_DIR" "$PYTHON" -m pytest "$DIM_DIR/tests/" "$@"
+else
+  PYTHONPATH="$DIM_DIR" "$PYTHON" "$DIM_DIR/run_web.py" "$@"
+fi

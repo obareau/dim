@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}PERFORM{% endblock %}
+{% block body_class %}performance-mode{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/performance.css') }}">
+{% endblock %}
+
+{% block topnav %}{% endblock %}
+
+{% block content %}
+
+{# ── Header ──────────────────────────────────────────────────────────────── #}
+<header class="pf-header">
+
+  {# Left — logo + project name #}
+  <div class="pf-header-left">
+    <span class="pf-logo">D.I.M</span>
+    <span class="pf-project-name" id="pf-project-name">{{ project_name }}</span>
+  </div>
+
+  {# Center — magnéto transport + tempo + position #}
+  <div class="pf-header-center">
+
+    {# Transport façon magnéto #}
+    <div class="pf-transport-inline">
+      <button class="pf-btn pf-btn-rew"  onclick="transport('rewind')" title="Rewind [R]">⏮</button>
+      <button class="pf-btn pf-btn-play" id="pf-btn-play" onclick="transport('toggle')" title="Play/Pause [Space]">▶</button>
+      <button class="pf-btn pf-btn-stop" onclick="transport('stop')"   title="Stop [S]">⏹</button>
+    </div>
+
+    {# Tempo — grand affichage #}
+    <div class="pf-tempo-block">
+      <span class="pf-tempo" id="pf-tempo">{{ tempo_bpm }}</span>
+      <span class="pf-tempo-unit">BPM</span>
+    </div>
+
+    {# Position + barre à segments #}
+    <div class="pf-pos-block">
+      <div class="pf-bar-beat">
+        BAR&nbsp;<span id="pf-bar">01</span>
+        &nbsp;|&nbsp;BEAT&nbsp;<span id="pf-beat">1</span>
+        &nbsp;|&nbsp;<span id="pf-ts">{{ time_signature }}</span>
+      </div>
+      <div class="pf-measure-wrap">
+        <div class="pf-measure-label">MEASURE</div>
+        {# 16 segments — 4 groups of 4 (beat accents) #}
+        <div class="pf-seg-bar" id="pf-seg-bar">
+          {% for i in range(16) %}
+          <div class="pf-seg{% if (i % 4) == 0 %} beat-accent{% endif %}" data-seg="{{ i }}"></div>
+          {% endfor %}
+        </div>
+        <div class="pf-measure-pct" id="pf-measure-pct">0%</div>
+      </div>
+    </div>
+
+    {# Elapsed #}
+    <div class="pf-elapsed" id="pf-elapsed">0:00</div>
+
+  </div>
+
+  {# Right — sync + status + theme + links #}
+  <div class="pf-header-right">
+    <div class="pf-sync-badges">
+      <span class="pf-badge pf-badge-sync" id="pf-sync-badge">SYNC: INTERNAL</span>
+      <span class="pf-badge pf-badge-status" id="pf-status-badge">STOPPED</span>
+      <span class="pf-live" id="pf-live">○</span>
+    </div>
+    <div class="pf-header-links">
+      <select class="pf-theme-select" id="pf-theme-select" title="Theme [T]" onchange="setTheme(this.value)">
+        <optgroup label="── Dark ──">
+          <option value="default">Default</option>
+          <option value="gruvbox">Gruvbox</option>
+          <option value="nord">Nord</option>
+          <option value="dracula">Dracula</option>
+          <option value="solarized">Solarized</option>
+          <option value="monokai">Monokai</option>
+          <option value="onedark">One Dark</option>
+          <option value="catppuccin">Catppuccin</option>
+          <option value="tokyo">Tokyo Night</option>
+          <option value="iceberg">Iceberg</option>
+          <option value="tango">Tango</option>
+        </optgroup>
+        <optgroup label="── Special ──">
+          <option value="light">Light (Paper)</option>
+          <option value="astro">Astro (Red Night)</option>
+        </optgroup>
+      </select>
+      <a href="/editor" class="pf-link">EDIT</a>
+      <a href="/" class="pf-link">HOME</a>
+    </div>
+  </div>
+
+</header>
+
+{# ── Lanes ───────────────────────────────────────────────────────────────── #}
+<div class="pf-lanes" id="pf-lanes">
+  {% for lane in lanes_meta %}
+  <div class="pf-lane {% if lane.is_conductor %}pf-lane--conductor{% endif %}"
+       id="lane-{{ lane.id }}"
+       data-lane-id="{{ lane.id }}"
+       style="--lane-color: {{ lane.color }}">
+
+    <div class="pf-lane-header">
+      <span class="pf-lane-num">{% if lane.is_conductor %}⊛{% else %}{{ loop.index }}{% endif %}</span>
+      <span class="pf-lane-name">{{ lane.name | upper }}</span>
+      <span class="pf-lane-speed">{{ lane.speed_ratio }}</span>
+      <span class="pf-lane-section" id="lsec-{{ lane.id }}"></span>
+      <span class="pf-lane-pass"   id="lpass-{{ lane.id }}"></span>
+    </div>
+
+    <div class="pf-cue-list" id="lcues-{{ lane.id }}">
+      <div class="pf-cue-placeholder">—</div>
+    </div>
+
+    <div class="pf-lane-footer">
+      {# 8 segments de progression #}
+      <div class="pf-lane-segs" id="lsegs-{{ lane.id }}">
+        {% for i in range(8) %}
+        <div class="pf-lane-seg" data-seg="{{ i }}"></div>
+        {% endfor %}
+      </div>
+      <span class="pf-bars-label" id="lbars-{{ lane.id }}">—</span>
+      <span class="pf-wait-label" id="lwait-{{ lane.id }}"></span>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+{# ── Footer / input bar ──────────────────────────────────────────────────── #}
+<footer class="pf-footer">
+  <span class="pf-footer-label">INPUT ▸</span>
+  <span class="pf-footer-cmd" id="pf-footer-cmd"></span>
+  <div class="pf-footer-spacer"></div>
+  <span class="pf-footer-shortcuts">
+    [SPACE] Play/Stop &nbsp;·&nbsp; [R] Rewind &nbsp;·&nbsp; [S] Stop &nbsp;·&nbsp;
+    [↑/↓] BPM±1 &nbsp;·&nbsp; [⇧↑/↓] BPM±5 &nbsp;·&nbsp;
+    [1–{{ lanes_meta|length }}] Focus lane &nbsp;·&nbsp; [↵] Advance focused &nbsp;·&nbsp;
+    [A] Advance all waiting &nbsp;·&nbsp; [T] Theme &nbsp;·&nbsp; [E] Editor
+  </span>
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/performance.js') }}?v={{ cache_bust }}"></script>
+{% endblock %}
