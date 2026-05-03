@@ -1,0 +1,190 @@
+{
+  "_comment": "D.I.M — Demo 02 — Duo Sync — 2 lanes synchronisées, conductor + machine, advance manuel",
+  "dim_version": "1.0",
+  "project": {
+    "id": "proj-demo-duo",
+    "name": "Duo Sync",
+    "tempo_bpm": 120.0,
+    "time_signature": "4/4",
+    "gosub_stack_limit": 4,
+    "lanes": [
+
+      {
+        "id": "lane-cond",
+        "name": "Conductor",
+        "color": "#888888",
+        "speed_ratio": "1:1",
+        "is_conductor": true,
+        "sections": [
+
+          {
+            "id": "sec-cond-duo",
+            "name": "Set Direction",
+            "type": "custom",
+            "color": "#333333",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-cd-01", "label": "→ SET START",
+                "content": "Nod — Machine A enters Warmup — let it breathe",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-cd-02", "label": "→ Hold Warmup",
+                "content": "Watch energy — hold until Machine A is locked in — manual release",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-cd-03", "label": "→ Machine A: GROOVE",
+                "content": "Raise hand — trigger Machine A to jump into Groove",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-ma-groove", "jump_lane": "lane-machine-a" },
+                "enabled": true, "order_index": 2
+              },
+              {
+                "id": "cue-cd-04", "label": "→ Hold Groove",
+                "content": "Sustain — let groove settle — watch for energy peak",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 3
+              },
+              {
+                "id": "cue-cd-05", "label": "→ Machine A: BREAK",
+                "content": "Slash gesture — Machine A drops to Break section",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "JUMP", "target": "sec-ma-break", "jump_lane": "lane-machine-a" },
+                "enabled": true, "order_index": 4
+              },
+              {
+                "id": "cue-cd-06", "label": "→ SET END",
+                "content": "Both hands down — let Break decay — end of set",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 5
+              }
+            ]
+          }
+
+        ]
+      },
+
+      {
+        "id": "lane-machine-a",
+        "name": "Machine A",
+        "color": "#ff6644",
+        "speed_ratio": "1:1",
+        "is_conductor": false,
+        "sections": [
+
+          {
+            "id": "sec-ma-warmup",
+            "name": "Warmup",
+            "type": "intro",
+            "color": "#2a1a10",
+            "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-ma-01", "label": "Pattern init",
+                "content": "Load sequence — minimal pattern — vol 50% — let it cycle",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-ma-02", "label": "Filter open",
+                "content": "Cutoff 20% → 55% — warming up the machine",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-ma-03", "label": "HOLD — await conductor",
+                "content": "Maintain current pattern — wait for conductor signal to advance",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          },
+
+          {
+            "id": "sec-ma-groove",
+            "name": "Groove",
+            "type": "verse",
+            "color": "#3a1500",
+            "instruction": { "op": "LOOP", "loop_count": 8 },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-ma-04", "label": "Groove main",
+                "content": "Full pattern — syncopated rhythm — filter 70% — drive 40%",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-ma-05", "label": "Accent layer",
+                "content": "Add accent on beat 3 — velocity boost — tighten envelope",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-ma-06", "label": "Variation B",
+                "content": "Switch to variation B — off-beat emphasis — groove deepens",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          },
+
+          {
+            "id": "sec-ma-break",
+            "name": "Break",
+            "type": "outro",
+            "color": "#1a0a00",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-ma-07", "label": "Strip back",
+                "content": "Remove all accents — bare pattern only — vol down 30%",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-ma-08", "label": "Filter close",
+                "content": "Cutoff 70% → 10% — slow 8-bar close — machine winds down",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-ma-09", "label": "Silence",
+                "content": "Kill pattern — let reverb tail ring — end",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          }
+
+        ]
+      }
+
+    ],
+    "arrangement": [
+      "sec-ma-warmup",
+      "sec-ma-groove",
+      "sec-ma-break"
+    ]
+  }
+}

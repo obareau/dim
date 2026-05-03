@@ -919,8 +919,8 @@ body.performance-mode .main-content {
   border: 1px solid #333;
   border-radius: 4px;
   padding: 24px 32px;
-  max-width: 520px;
-  width: 90%;
+  max-width: 860px;
+  width: 95%;
   box-shadow: 0 8px 40px rgba(0,0,0,0.8);
 }
 
@@ -933,23 +933,44 @@ body.performance-mode .main-content {
   padding-bottom: 10px;
 }
 
-.pf-help-grid {
+.pf-help-cols {
   display: grid;
-  grid-template-columns: 130px 1fr;
-  gap: 4px 12px;
-  font-size: 11px;
-  color: #888;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 40px;
 }
 
-.pf-help-grid > div:nth-child(odd)  { color: #ccc; }
+.pf-help-col { display: flex; flex-direction: column; }
+
+.pf-help-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 3px 10px;
+  font-size: 10px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.pf-help-grid > div:nth-child(odd)  { color: #ccc; font-family: var(--th-mono, monospace); }
 .pf-help-grid > div:nth-child(even) { color: #666; }
+.pf-help-grid .pf-help-combo { color: #556; font-style: italic; }
+
 .pf-help-section {
-  grid-column: 1 / -1;
   color: var(--th-accent2, #e8c830) !important;
   font-size: 9px;
   letter-spacing: 0.14em;
-  margin-top: 10px;
+  margin-top: 12px;
+  margin-bottom: 4px;
   opacity: 0.7;
+}
+
+.pf-help-mac {
+  font-size: 9px;
+  color: #444;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 2px;
+  padding: 0 3px;
+  vertical-align: middle;
 }
 
 .pf-help-close {
@@ -957,7 +978,9 @@ body.performance-mode .main-content {
   font-size: 9px;
   color: #333;
   text-align: center;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
+  border-top: 1px solid #1a1a1a;
+  padding-top: 10px;
 }
 
 /* ── Manual waiting — big pulsing prompt ── */

@@ -587,48 +587,71 @@ function toggleHelp() {
     overlay.innerHTML = `
 <div class="pf-help-box">
   <div class="pf-help-title">D.I.M — KEYBOARD SHORTCUTS</div>
-  <div class="pf-help-grid">
-    <div class="pf-help-section">TRANSPORT</div>
-    <div></div>
-    <div>[SPACE]</div><div>Play / Pause</div>
-    <div>[R]</div><div>Rewind to start</div>
-    <div>[S]</div><div>Stop</div>
+  <div class="pf-help-cols">
 
-    <div class="pf-help-section">TEMPO</div>
-    <div></div>
-    <div>[↑] / [↓]</div><div>BPM +1 / -1</div>
-    <div>[⇧↑] / [⇧↓]</div><div>BPM +5 / -5</div>
-    <div>[P P P P]</div><div>Tap tempo (4 taps → apply)</div>
+    <div class="pf-help-col">
+      <div class="pf-help-section">TRANSPORT</div>
+      <div class="pf-help-grid">
+        <div>[SPACE]</div><div>Play / Pause</div>
+        <div>[R]</div><div>Rewind</div>
+        <div>[S]</div><div>Stop</div>
+        <div class="pf-help-combo">[⌘←]</div><div>Rewind <span class="pf-help-mac">⌘</span></div>
+        <div class="pf-help-combo">[⌘.]</div><div>Stop <span class="pf-help-mac">⌘</span></div>
+        <div class="pf-help-combo">[Ctrl+Space]</div><div>Play/Pause <span class="pf-help-mac">⌘</span></div>
+      </div>
 
-    <div class="pf-help-section">TIME SIG</div>
-    <div></div>
-    <div>[G]</div><div>Cycle → 4/4 · 3/4 · 6/8 · 5/4 · 7/8 …</div>
-    <div>[⇧G]</div><div>Cycle ←</div>
+      <div class="pf-help-section">TEMPO</div>
+      <div class="pf-help-grid">
+        <div>[↑] / [↓]</div><div>BPM +1 / −1</div>
+        <div>[⇧↑] / [⇧↓]</div><div>BPM +5 / −5</div>
+        <div class="pf-help-combo">[⌘↑] / [⌘↓]</div><div>BPM +10 / −10 <span class="pf-help-mac">⌘</span></div>
+        <div>[P P P P]</div><div>Tap tempo (4 taps)</div>
+      </div>
 
-    <div class="pf-help-section">LANE FOCUS</div>
-    <div></div>
-    <div>[1–4]</div><div>Focus lane N</div>
-    <div>[←] / [→]</div><div>Prev / next lane</div>
-    <div>[0]</div><div>Clear focus</div>
+      <div class="pf-help-section">TIME SIGNATURE</div>
+      <div class="pf-help-grid">
+        <div>[G]</div><div>Cycle → 4/4 · 3/4 · 6/8 · 5/4 · 7/8</div>
+        <div>[⇧G]</div><div>Cycle ←</div>
+      </div>
+    </div>
 
-    <div class="pf-help-section">MANUAL ADVANCE</div>
-    <div></div>
-    <div>[↵]</div><div>Advance focused lane (or first waiting)</div>
-    <div>[A]</div><div>Advance ALL waiting lanes</div>
+    <div class="pf-help-col">
+      <div class="pf-help-section">LANE FOCUS</div>
+      <div class="pf-help-grid">
+        <div>[1–9]</div><div>Focus lane N</div>
+        <div>[←] / [→]</div><div>Lane précédente / suivante</div>
+        <div>[0]</div><div>Effacer le focus</div>
+      </div>
 
-    <div class="pf-help-section">BRANCHES</div>
-    <div></div>
-    <div>[V]</div><div>Veto JUMP on focused lane</div>
+      <div class="pf-help-section">ADVANCE MANUEL</div>
+      <div class="pf-help-grid">
+        <div>[↵]</div><div>Avancer lane focalisée (ou 1ère en attente)</div>
+        <div>[A]</div><div>Avancer TOUTES les lanes en attente</div>
+        <div class="pf-help-combo">[⌘↵]</div><div>Avancer TOUTES <span class="pf-help-mac">⌘</span></div>
+      </div>
 
-    <div class="pf-help-section">VIEW</div>
-    <div></div>
-    <div>[+] / [-]</div><div>Zoom in / out</div>
-    <div>[\\]</div><div>Reset zoom</div>
-    <div>[T]</div><div>Next theme  [⇧T] Prev theme</div>
-    <div>[E]</div><div>Editor</div>
-    <div>[H]</div><div>This help</div>
+      <div class="pf-help-section">BRANCHES</div>
+      <div class="pf-help-grid">
+        <div>[V]</div><div>Véto JUMP — lane focalisée</div>
+      </div>
+
+      <div class="pf-help-section">VUE</div>
+      <div class="pf-help-grid">
+        <div>[+] / [−]</div><div>Zoom avant / arrière</div>
+        <div class="pf-help-combo">[⌘+] / [⌘−]</div><div>Zoom <span class="pf-help-mac">⌘</span></div>
+        <div class="pf-help-combo">[⌘0]</div><div>Zoom 100% <span class="pf-help-mac">⌘</span></div>
+        <div>[\\]</div><div>Reset zoom</div>
+        <div>[T] / [⇧T]</div><div>Thème suivant / précédent</div>
+        <div>[E]</div><div>Éditeur</div>
+        <div>[H] / [⌘/]</div><div>Cette aide</div>
+      </div>
+    </div>
+
   </div>
-  <div class="pf-help-close">[H] or [ESC] to close</div>
+  <div class="pf-help-close">
+    <span class="pf-help-mac">⌘</span> = combos Mac disponibles en plus des touches simples
+    &nbsp;·&nbsp; [H] ou [ESC] pour fermer
+  </div>
 </div>`;
     overlay.addEventListener('click', () => { _helpVisible = false; overlay.remove(); });
     document.body.appendChild(overlay);
@@ -647,6 +670,77 @@ document.addEventListener('keydown', function (e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' ||
       e.target.tagName === 'SELECT') return;
 
+  const cmd  = e.metaKey;   // ⌘ Mac
+  const ctrl = e.ctrlKey;
+  const shift = e.shiftKey;
+  const mod  = cmd || ctrl; // any modifier
+
+  // ── ⌘ / Ctrl combos (Mac HIG) ────────────────────────────────────────────
+  if (mod) {
+    switch (e.code) {
+      // ⌘Space / Ctrl+Space — Play/Pause  (⌘Space intercepté par Spotlight → Ctrl préféré)
+      case 'Space':
+        e.preventDefault();
+        transport('toggle');
+        return;
+
+      // ⌘. — Stop  (convention Mac : interrompre une opération)
+      case 'Period':
+        e.preventDefault();
+        transport('stop');
+        return;
+
+      // ⌘← — Rewind  (navigation debut, cohérent avec les médias)
+      case 'ArrowLeft':
+        e.preventDefault();
+        transport('rewind');
+        return;
+
+      // ⌘↑ / ⌘↓ — BPM ±10 (⇧ déjà utilisé pour ±5)
+      case 'ArrowUp':
+        e.preventDefault();
+        if (_state?.tempo_bpm) setTempo(Math.min(300, (_state.tempo_bpm || 120) + 10));
+        return;
+      case 'ArrowDown':
+        e.preventDefault();
+        if (_state?.tempo_bpm) setTempo(Math.max(20, (_state.tempo_bpm || 120) - 10));
+        return;
+
+      // ⌘↵ — Advance ALL waiting lanes
+      case 'Enter':
+      case 'NumpadEnter':
+        e.preventDefault();
+        advanceAllWaiting();
+        return;
+
+      // ⌘= / ⌘+ — Zoom in   |   ⌘- — Zoom out   |   ⌘0 — Zoom reset
+      case 'Equal':
+      case 'NumpadAdd':
+        e.preventDefault();
+        zoomIn();
+        return;
+      case 'Minus':
+      case 'NumpadSubtract':
+        e.preventDefault();
+        zoomOut();
+        return;
+      case 'Digit0':
+      case 'Numpad0':
+        e.preventDefault();
+        zoomReset();
+        return;
+
+      // ⌘/ — Help overlay  (convention Mac : aide contextuelle)
+      case 'Slash':
+        e.preventDefault();
+        toggleHelp();
+        return;
+    }
+    // Laisser les autres combos ⌘ au navigateur (⌘R refresh, ⌘T new tab…)
+    return;
+  }
+
+  // ── Single-key shortcuts (mode performance) ───────────────────────────────
   switch (e.code) {
 
     // ── Transport ──
@@ -655,7 +749,7 @@ document.addEventListener('keydown', function (e) {
       transport('toggle');
       break;
     case 'KeyR':
-      if (!e.shiftKey) transport('rewind');
+      transport('rewind');
       break;
     case 'KeyS':
       transport('stop');
@@ -664,11 +758,11 @@ document.addEventListener('keydown', function (e) {
     // ── Tempo ──
     case 'ArrowUp':
       e.preventDefault();
-      if (_state?.tempo_bpm) setTempo(Math.min(300, (_state.tempo_bpm || 120) + (e.shiftKey ? 5 : 1)));
+      if (_state?.tempo_bpm) setTempo(Math.min(300, (_state.tempo_bpm || 120) + (shift ? 5 : 1)));
       break;
     case 'ArrowDown':
       e.preventDefault();
-      if (_state?.tempo_bpm) setTempo(Math.max(20, (_state.tempo_bpm || 120) - (e.shiftKey ? 5 : 1)));
+      if (_state?.tempo_bpm) setTempo(Math.max(20, (_state.tempo_bpm || 120) - (shift ? 5 : 1)));
       break;
     case 'KeyP':
       tapTempo();
@@ -676,7 +770,7 @@ document.addEventListener('keydown', function (e) {
 
     // ── Time signature ──
     case 'KeyG':
-      cycleTimeSig(e.shiftKey);
+      cycleTimeSig(shift);
       break;
 
     // ── Lane focus ──
@@ -732,7 +826,7 @@ document.addEventListener('keydown', function (e) {
 
     // ── Theme ──
     case 'KeyT':
-      cycleTheme(e.shiftKey);
+      cycleTheme(shift);
       break;
 
     // ── View ──
@@ -747,7 +841,7 @@ document.addEventListener('keydown', function (e) {
 
     // ── Lane focus 1–9 + 0 ──
     default:
-      if (e.code.startsWith('Digit') && !e.ctrlKey && !e.metaKey) {
+      if (e.code.startsWith('Digit')) {
         const n = parseInt(e.key);
         if (n >= 1 && n <= 9) { e.preventDefault(); focusLane(n); }
         if (n === 0)           { e.preventDefault(); clearFocus(); }

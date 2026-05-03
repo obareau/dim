@@ -1,0 +1,126 @@
+{
+  "_comment": "D.I.M — Demo 01 — Solo Drone Session — minimal 1-lane preset for learning the tool",
+  "dim_version": "1.0",
+  "project": {
+    "id": "proj-demo-solo",
+    "name": "Solo Drone Session",
+    "tempo_bpm": 90.0,
+    "time_signature": "4/4",
+    "gosub_stack_limit": 4,
+    "lanes": [
+
+      {
+        "id": "lane-drone",
+        "name": "Drone / Pads",
+        "color": "#4488ff",
+        "speed_ratio": "1:1",
+        "is_conductor": false,
+        "sections": [
+
+          {
+            "id": "sec-sol-intro",
+            "name": "Intro",
+            "type": "intro",
+            "color": "#1a2a44",
+            "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-sol-01", "label": "Pad Atmo",
+                "content": "Load drone patch — filter closed — reverb long — vol 60%",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-sol-02", "label": "Filter sweep",
+                "content": "Open filter slowly — cutoff 10% → 40% over 8 bars",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sol-03", "label": "HOLD — wait for go",
+                "content": "Hold current texture — press advance when ready to move to Core",
+                "duration_bars": 0.0, "repeat": 1,
+                "instruction": { "op": "LOOP", "loop_until": true, "condition": "MANUAL" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          },
+
+          {
+            "id": "sec-sol-core",
+            "name": "Core",
+            "type": "verse",
+            "color": "#0d1f3c",
+            "instruction": { "op": "LOOP", "loop_count": 4 },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-sol-04", "label": "Pad Atmo",
+                "content": "Main pad layer — filter 50% — LFO rate 0.2Hz on cutoff",
+                "duration_bars": 16.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-sol-05", "label": "Filter sweep",
+                "content": "Push filter 50% → 80% — add harmonic brightness",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sol-06", "label": "Long release",
+                "content": "Release notes — long decay — let harmonics ring out naturally",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          },
+
+          {
+            "id": "sec-sol-outro",
+            "name": "Outro",
+            "type": "outro",
+            "color": "#0a1020",
+            "instruction": { "op": "PLAY" },
+            "playlist": { "mode": "all" },
+            "cues": [
+              {
+                "id": "cue-sol-07", "label": "Filter sweep",
+                "content": "Close filter 60% → 5% — 8-bar slow descent",
+                "duration_bars": 8.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 0
+              },
+              {
+                "id": "cue-sol-08", "label": "Long release",
+                "content": "Kill notes — let reverb tail fade — do not touch",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 1
+              },
+              {
+                "id": "cue-sol-09", "label": "Pad Atmo — silence",
+                "content": "Complete fade — vol 100% → 0% — end of set",
+                "duration_bars": 4.0, "repeat": 1,
+                "instruction": { "op": "PLAY" },
+                "enabled": true, "order_index": 2
+              }
+            ]
+          }
+
+        ]
+      }
+
+    ],
+    "arrangement": [
+      "sec-sol-intro",
+      "sec-sol-core",
+      "sec-sol-outro"
+    ]
+  }
+}

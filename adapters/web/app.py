@@ -249,6 +249,16 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
         """Emulated ESP32 LCD/OLED display preview."""
         return render_template("esp32_preview.html")
 
+    @app.route("/about")
+    def about():
+        """About / manual page."""
+        import os, glob
+        demos = sorted([
+            os.path.basename(f)
+            for f in glob.glob(os.path.join(os.path.dirname(__file__), '..', '..', 'formats', '*.json'))
+        ])
+        return render_template("about.html", version="0.6.0", demos=demos)
+
     @app.route("/api/validate", methods=["POST"])
     def api_validate():
         data = request.get_json(force=True)

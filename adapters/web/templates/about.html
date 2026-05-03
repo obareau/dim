@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+{% block title %}About — D.I.M{% endblock %}
+{% block head %}
+<style>
+/* ── About page ── */
+.about-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+  font-family: var(--mono, 'IBM Plex Mono', monospace);
+  color: #888;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.about-hero {
+  border-bottom: 1px solid #222;
+  padding-bottom: 32px;
+  margin-bottom: 40px;
+}
+
+.about-logo {
+  font-size: 36px;
+  letter-spacing: 0.3em;
+  color: var(--accent, #e8c830);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.about-tagline {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.18em;
+}
+
+.about-version {
+  font-size: 9px;
+  color: #333;
+  margin-top: 8px;
+  letter-spacing: 0.1em;
+}
+
+.about-section {
+  margin-bottom: 40px;
+}
+
+.about-h2 {
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--accent, #e8c830);
+  border-bottom: 1px solid #1a1a1a;
+  padding-bottom: 6px;
+  margin-bottom: 16px;
+}
+
+.about-p {
+  color: #666;
+  margin-bottom: 12px;
+}
+
+.about-p strong { color: #999; font-weight: normal; }
+
+/* ── Concepts grid ── */
+.about-concepts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.about-concept {
+  border: 1px solid #1a1a1a;
+  border-left: 2px solid var(--accent, #e8c830);
+  padding: 12px 16px;
+  border-radius: 2px;
+}
+
+.about-concept-title {
+  color: #ccc;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+}
+
+.about-concept-desc { color: #555; font-size: 11px; }
+
+/* ── Shortcuts table ── */
+.about-shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 40px;
+}
+
+.about-shortcut-col {}
+
+.about-shortcut-section {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  color: var(--accent2, #55aaff);
+  margin-top: 16px;
+  margin-bottom: 6px;
+}
+
+.about-shortcut-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 2px 8px;
+  font-size: 10px;
+}
+
+.about-shortcut-grid .k {
+  color: #aaa;
+  font-family: var(--mono, monospace);
+  white-space: nowrap;
+}
+
+.about-shortcut-grid .d { color: #555; }
+
+kbd {
+  font-family: var(--mono, monospace);
+  font-size: 10px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 2px;
+  padding: 0 4px;
+  color: #aaa;
+}
+
+.about-mac-badge {
+  font-size: 9px;
+  color: #333;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 2px;
+  padding: 0 3px;
+}
+
+/* ── Demos ── */
+.about-demos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.about-demo-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid #1a1a1a;
+  border-radius: 2px;
+  justify-content: space-between;
+}
+
+.about-demo-name { color: #666; }
+.about-demo-btn {
+  font-family: var(--mono, monospace);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  padding: 4px 10px;
+  border: 1px solid #333;
+  background: #111;
+  color: #888;
+  cursor: pointer;
+  border-radius: 2px;
+  text-decoration: none;
+}
+.about-demo-btn:hover { color: #ccc; border-color: #555; background: #1a1a1a; }
+
+/* ── Instructions reference ── */
+.about-instr-grid {
+  display: grid;
+  grid-template-columns: 100px 80px 1fr;
+  gap: 4px 12px;
+  font-size: 10px;
+}
+
+.about-instr-grid .op   { color: #e8c830; }
+.about-instr-grid .ctx  { color: #444; font-size: 9px; }
+.about-instr-grid .desc { color: #555; }
+.about-instr-grid .head { color: #333; font-size: 9px; letter-spacing: 0.1em; border-bottom: 1px solid #1a1a1a; padding-bottom: 4px; margin-bottom: 4px; }
+
+/* ── Nav links ── */
+.about-nav {
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+  border-top: 1px solid #1a1a1a;
+  padding-top: 20px;
+}
+
+.about-nav a {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  color: #444;
+  text-decoration: none;
+}
+.about-nav a:hover { color: #999; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-wrap">
+
+  {# ── Hero ── #}
+  <div class="about-hero">
+    <span class="about-logo">D·I·M</span>
+    <div class="about-tagline">DAWLESS IS MORE — PERFORMANCE SEQUENCER</div>
+    <div class="about-version">v{{ version }} · Format 1.0 · Flask + SocketIO</div>
+  </div>
+
+  {# ── Concept ── #}
+  <div class="about-section">
+    <div class="about-h2">CONCEPT</div>
+    <p class="about-p">
+      D.I.M est un séquenceur de <strong>performance live</strong> conçu pour les setups
+      sans ordinateur central (dawless). Il orchestre plusieurs <strong>lanes</strong> en parallèle —
+      chaque lane représente un instrument, une machine ou un rôle (conductor, drums, synth, FX…).
+    </p>
+    <p class="about-p">
+      Le principe : charger un projet JSON décrivant la structure du set, puis jouer depuis l'interface
+      performance avec des raccourcis clavier. Les branches conditionnelles (JUMP, LOOP, GOSUB)
+      permettent d'adapter le set en temps réel selon l'énergie de la scène.
+    </p>
+
+    <div class="about-concepts">
+      <div class="about-concept">
+        <div class="about-concept-title">LANE</div>
+        <div class="about-concept-desc">Un flux de jeu indépendant — drum machine, synthé, FX. La lane <strong>Conductor</strong> orchestre les autres.</div>
+      </div>
+      <div class="about-concept">
+        <div class="about-concept-title">SECTION</div>
+        <div class="about-concept-desc">Un bloc musical d'une lane — intro, groove, break. Contient des cues et une instruction de fin.</div>
+      </div>
+      <div class="about-concept">
+        <div class="about-concept-title">CUE</div>
+        <div class="about-concept-desc">Une étape dans une section. Peut avoir une durée en mesures ou être une note de régie (durée 0).</div>
+      </div>
+      <div class="about-concept">
+        <div class="about-concept-title">INSTRUCTION</div>
+        <div class="about-concept-desc">Ce qui se passe à la fin d'une section ou d'une cue : LOOP, JUMP, GOSUB, MANUAL, ou PLAY (continue).</div>
+      </div>
+    </div>
+  </div>
+
+  {# ── Instructions reference ── #}
+  <div class="about-section">
+    <div class="about-h2">INSTRUCTIONS</div>
+    <div class="about-instr-grid">
+      <div class="head">OP</div>
+      <div class="head">CONTEXTE</div>
+      <div class="head">DESCRIPTION</div>
+
+      <div class="op">PLAY</div>
+      <div class="ctx">cue / section</div>
+      <div class="desc">Continue normalement — passe à la cue/section suivante</div>
+
+      <div class="op">LOOP n×</div>
+      <div class="ctx">cue / section</div>
+      <div class="desc">Répète n fois avant de continuer</div>
+
+      <div class="op">LOOP MANUAL</div>
+      <div class="ctx">cue / section</div>
+      <div class="desc">Boucle indéfiniment — attend <kbd>↵</kbd> ou <kbd>A</kbd> pour avancer</div>
+
+      <div class="op">JUMP →</div>
+      <div class="ctx">section</div>
+      <div class="desc">Saute à une autre section (même lane ou lane différente)</div>
+
+      <div class="op">JUMP cond.</div>
+      <div class="ctx">section</div>
+      <div class="desc">Saute selon une condition : EVERY n, FIRST, AFTER n…</div>
+
+      <div class="op">GOSUB</div>
+      <div class="ctx">section</div>
+      <div class="desc">Sous-routine — joue une section puis revient (stack max 4)</div>
+
+      <div class="op">SKIP</div>
+      <div class="ctx">cue</div>
+      <div class="desc">Passe la cue silencieusement</div>
+    </div>
+  </div>
+
+  {# ── Keyboard shortcuts ── #}
+  <div class="about-section">
+    <div class="about-h2">RACCOURCIS CLAVIER</div>
+    <div class="about-shortcuts">
+
+      <div class="about-shortcut-col">
+        <div class="about-shortcut-section">TRANSPORT</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>Space</kbd></div><div class="d">Play / Pause</div>
+          <div class="k"><kbd>Ctrl+Space</kbd></div><div class="d">Play / Pause <span class="about-mac-badge">⌘</span></div>
+          <div class="k"><kbd>R</kbd></div><div class="d">Rewind</div>
+          <div class="k"><kbd>⌘←</kbd></div><div class="d">Rewind <span class="about-mac-badge">⌘</span></div>
+          <div class="k"><kbd>S</kbd></div><div class="d">Stop</div>
+          <div class="k"><kbd>⌘.</kbd></div><div class="d">Stop <span class="about-mac-badge">⌘</span></div>
+        </div>
+
+        <div class="about-shortcut-section">TEMPO</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>↑</kbd> / <kbd>↓</kbd></div><div class="d">BPM +1 / −1</div>
+          <div class="k"><kbd>⇧↑</kbd> / <kbd>⇧↓</kbd></div><div class="d">BPM +5 / −5</div>
+          <div class="k"><kbd>⌘↑</kbd> / <kbd>⌘↓</kbd></div><div class="d">BPM +10 / −10 <span class="about-mac-badge">⌘</span></div>
+          <div class="k"><kbd>P P P P</kbd></div><div class="d">Tap tempo (4 taps)</div>
+        </div>
+
+        <div class="about-shortcut-section">SIGNATURE RYTHMIQUE</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>G</kbd></div><div class="d">Cycle → 4/4 · 3/4 · 6/8 · 5/4 · 7/8</div>
+          <div class="k"><kbd>⇧G</kbd></div><div class="d">Cycle ←</div>
+        </div>
+
+        <div class="about-shortcut-section">VUE</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>+</kbd> / <kbd>−</kbd></div><div class="d">Zoom avant / arrière</div>
+          <div class="k"><kbd>⌘+</kbd> / <kbd>⌘−</kbd></div><div class="d">Zoom <span class="about-mac-badge">⌘</span></div>
+          <div class="k"><kbd>⌘0</kbd></div><div class="d">Zoom 100% <span class="about-mac-badge">⌘</span></div>
+          <div class="k"><kbd>\</kbd></div><div class="d">Reset zoom</div>
+          <div class="k"><kbd>T</kbd> / <kbd>⇧T</kbd></div><div class="d">Thème suivant / précédent</div>
+          <div class="k"><kbd>E</kbd></div><div class="d">Ouvrir l'éditeur</div>
+          <div class="k"><kbd>H</kbd> / <kbd>⌘/</kbd></div><div class="d">Aide (overlay)</div>
+        </div>
+      </div>
+
+      <div class="about-shortcut-col">
+        <div class="about-shortcut-section">FOCUS LANE</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>1</kbd>–<kbd>9</kbd></div><div class="d">Focaliser la lane N</div>
+          <div class="k"><kbd>←</kbd> / <kbd>→</kbd></div><div class="d">Lane précédente / suivante</div>
+          <div class="k"><kbd>0</kbd></div><div class="d">Effacer le focus</div>
+        </div>
+
+        <div class="about-shortcut-section">ADVANCE MANUEL</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>↵</kbd></div><div class="d">Avancer la lane focalisée (ou 1ère en attente)</div>
+          <div class="k"><kbd>A</kbd></div><div class="d">Avancer TOUTES les lanes en attente</div>
+          <div class="k"><kbd>⌘↵</kbd></div><div class="d">Avancer TOUTES <span class="about-mac-badge">⌘</span></div>
+        </div>
+
+        <div class="about-shortcut-section">BRANCHES CONDITIONNELLES</div>
+        <div class="about-shortcut-grid">
+          <div class="k"><kbd>V</kbd></div><div class="d">Véto JUMP — lane focalisée (skip le prochain saut)</div>
+        </div>
+
+        <div class="about-shortcut-section">AFFICHAGE ESP32</div>
+        <div class="about-shortcut-grid">
+          <div class="k">—</div><div class="d">Accès via <a href="/esp32" style="color:#555">/esp32</a> — LCD 20×4, OLED 128×64/32</div>
+        </div>
+
+        <div class="about-shortcut-section">FORMAT PROJET</div>
+        <div class="about-shortcut-grid">
+          <div class="k">JSON</div><div class="d">formats/*.json — chargé au démarrage</div>
+          <div class="k">API</div><div class="d">POST /api/project — chargement dynamique</div>
+          <div class="k">GET</div><div class="d">/api/state — état en temps réel</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  {# ── Demo presets ── #}
+  {% if demos %}
+  <div class="about-section">
+    <div class="about-h2">PROJETS DEMO</div>
+    <p class="about-p">Charger un preset via l'éditeur ou en relançant le serveur avec le fichier correspondant.</p>
+    <div class="about-demos">
+      {% for demo in demos %}
+      <div class="about-demo-row">
+        <span class="about-demo-name">{{ demo }}</span>
+        <a href="/editor" class="about-demo-btn">OUVRIR DANS L'ÉDITEUR →</a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  {# ── Nav ── #}
+  <div class="about-nav">
+    <a href="/performance">← PERFORMANCE</a>
+    <a href="/editor">ÉDITEUR</a>
+    <a href="/esp32">ESP32</a>
+    <a href="/">HOME</a>
+  </div>
+
+</div>
+{% endblock %}
