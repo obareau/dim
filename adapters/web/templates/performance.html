@@ -129,13 +129,30 @@
   {% endfor %}
 </div>
 
+{# ── Touch toolbar (visible sur mobile/tablette) ─────────────────────────── #}
+<div class="pf-touch-bar" id="pf-touch-bar">
+  <button class="pf-touch-btn pf-touch-rew"  ontouchstart="transport('rewind')" onclick="transport('rewind')" title="Rewind">⏮</button>
+  <button class="pf-touch-btn pf-touch-play" id="pf-touch-play" ontouchstart="transport('toggle')" onclick="transport('toggle')" title="Play/Pause">▶</button>
+  <button class="pf-touch-btn pf-touch-stop" ontouchstart="transport('stop')"   onclick="transport('stop')"   title="Stop">⏹</button>
+  <div class="pf-touch-sep"></div>
+  <button class="pf-touch-btn pf-touch-bpm-dn" ontouchstart="bpmStep(-1)" onclick="bpmStep(-1)" title="BPM −1">−</button>
+  <span class="pf-touch-bpm" id="pf-touch-bpm">—</span>
+  <button class="pf-touch-btn pf-touch-bpm-up" ontouchstart="bpmStep(+1)" onclick="bpmStep(+1)" title="BPM +1">+</button>
+  <div class="pf-touch-sep"></div>
+  <button class="pf-touch-btn pf-touch-tap"  ontouchstart="tapTempo()" onclick="tapTempo()" title="Tap tempo">TAP</button>
+  <div class="pf-touch-sep"></div>
+  <button class="pf-touch-btn pf-touch-adv"  ontouchstart="advanceAllWaiting()" onclick="advanceAllWaiting()" title="Advance all">▶▶</button>
+  <div class="pf-touch-sep"></div>
+  <button class="pf-touch-btn pf-touch-help" ontouchstart="toggleHelp()" onclick="toggleHelp()" title="Help">?</button>
+</div>
+
 {# ── Footer / input bar ──────────────────────────────────────────────────── #}
 <footer class="pf-footer">
   <span class="pf-footer-label">INPUT ▸</span>
   <span class="pf-footer-cmd" id="pf-footer-cmd"></span>
   <div class="pf-footer-spacer"></div>
   <span class="pf-footer-shortcuts">
-    [SPC] Play &nbsp;·&nbsp; [R] Rew &nbsp;·&nbsp; [S] Stop &nbsp;·&nbsp;
+    [SPC] Play &nbsp;·&nbsp; [R] Rew→Stop &nbsp;·&nbsp; [S] Stop &nbsp;·&nbsp;
     [↑↓] BPM &nbsp;·&nbsp; [P…] Tap &nbsp;·&nbsp; [G] TimeSig &nbsp;·&nbsp;
     [1–{{ lanes_meta|length }}] Focus &nbsp;·&nbsp; [←→] Prev/Next &nbsp;·&nbsp;
     [↵] Advance &nbsp;·&nbsp; [A] All &nbsp;·&nbsp; [V] Veto jump &nbsp;·&nbsp;

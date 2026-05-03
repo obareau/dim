@@ -58,13 +58,17 @@ function showCmd(msg, ttl = 2500) {
 
 function transport(action) {
   socket.emit('transport', { action });
-  const labels = { play: '▶ PLAY', stop: '⏹ STOP', rewind: '⏮ REWIND', toggle: '' };
+  const labels = { play: '▶ PLAY', stop: '⏹ STOP', rewind: '⏮ REWIND → STOPPED', toggle: '' };
   if (action !== 'toggle') showCmd(labels[action] || action.toUpperCase());
 }
 
 function setTempo(bpm) {
   socket.emit('set_tempo', { bpm });
   showCmd(`TEMPO → ${bpm.toFixed(1)} BPM`);
+}
+
+function bpmStep(delta) {
+  if (_state?.tempo_bpm) setTempo(Math.min(300, Math.max(20, _state.tempo_bpm + delta)));
 }
 
 // ── SocketIO events ───────────────────────────────────────────────────────────
@@ -162,9 +166,15 @@ function updateHeader(state) {
 
 function refreshPlayBtn() {
   const btn = el('pf-btn-play');
-  if (!btn) return;
-  btn.textContent = _playing ? '⏸' : '▶';
-  btn.classList.toggle('playing', _playing);
+  if (btn) {
+    btn.textContent = _playing ? '⏸' : '▶';
+    btn.classList.toggle('playing', _playing);
+  }
+  // Touch toolbar sync
+  const tbtn = el('pf-touch-play');
+  if (tbtn) tbtn.textContent = _playing ? '⏸' : '▶';
+  const tbpm = el('pf-touch-bpm');
+  if (tbpm && _state?.tempo_bpm) tbpm.textContent = _state.tempo_bpm.toFixed(1);
 }
 
 function updateSyncBadge(state) {
@@ -593,19 +603,19 @@ function toggleHelp() {
       <div class="pf-help-section">TRANSPORT</div>
       <div class="pf-help-grid">
         <div>[SPACE]</div><div>Play / Pause</div>
-        <div>[R]</div><div>Rewind</div>
+        <div>[R]</div><div>Rewind → Stop (puis [SPC] pour relancer)</div>
         <div>[S]</div><div>Stop</div>
-        <div class="pf-help-combo">[⌘←]</div><div>Rewind <span class="pf-help-mac">⌘</span></div>
-        <div class="pf-help-combo">[⌘.]</div><div>Stop <span class="pf-help-mac">⌘</span></div>
-        <div class="pf-help-combo">[Ctrl+Space]</div><div>Play/Pause <span class="pf-help-mac">⌘</span></div>
+        <div class="pf-help-combo">[⌘/Ctrl + Space]</div><div>Play / Pause</div>
+        <div class="pf-help-combo">[⌘/Ctrl + ←]</div><div>Rewind → Stop</div>
+        <div class="pf-help-combo">[⌘/Ctrl + .]</div><div>Stop</div>
       </div>
 
       <div class="pf-help-section">TEMPO</div>
       <div class="pf-help-grid">
         <div>[↑] / [↓]</div><div>BPM +1 / −1</div>
         <div>[⇧↑] / [⇧↓]</div><div>BPM +5 / −5</div>
-        <div class="pf-help-combo">[⌘↑] / [⌘↓]</div><div>BPM +10 / −10 <span class="pf-help-mac">⌘</span></div>
-        <div>[P P P P]</div><div>Tap tempo (4 taps)</div>
+        <div class="pf-help-combo">[⌘/Ctrl + ↑/↓]</div><div>BPM +10 / −10</div>
+        <div>[P P P P]</div><div>Tap tempo (4 taps → applique)</div>
       </div>
 
       <div class="pf-help-section">TIME SIGNATURE</div>
@@ -627,7 +637,7 @@ function toggleHelp() {
       <div class="pf-help-grid">
         <div>[↵]</div><div>Avancer lane focalisée (ou 1ère en attente)</div>
         <div>[A]</div><div>Avancer TOUTES les lanes en attente</div>
-        <div class="pf-help-combo">[⌘↵]</div><div>Avancer TOUTES <span class="pf-help-mac">⌘</span></div>
+        <div class="pf-help-combo">[⌘/Ctrl + ↵]</div><div>Avancer TOUTES</div>
       </div>
 
       <div class="pf-help-section">BRANCHES</div>
@@ -638,19 +648,18 @@ function toggleHelp() {
       <div class="pf-help-section">VUE</div>
       <div class="pf-help-grid">
         <div>[+] / [−]</div><div>Zoom avant / arrière</div>
-        <div class="pf-help-combo">[⌘+] / [⌘−]</div><div>Zoom <span class="pf-help-mac">⌘</span></div>
-        <div class="pf-help-combo">[⌘0]</div><div>Zoom 100% <span class="pf-help-mac">⌘</span></div>
+        <div class="pf-help-combo">[⌘/Ctrl + +/−]</div><div>Zoom</div>
+        <div class="pf-help-combo">[⌘/Ctrl + 0]</div><div>Zoom 100%</div>
         <div>[\\]</div><div>Reset zoom</div>
         <div>[T] / [⇧T]</div><div>Thème suivant / précédent</div>
         <div>[E]</div><div>Éditeur</div>
-        <div>[H] / [⌘/]</div><div>Cette aide</div>
+        <div>[H] / [⌘/Ctrl + /]</div><div>Cette aide</div>
       </div>
     </div>
 
   </div>
   <div class="pf-help-close">
-    <span class="pf-help-mac">⌘</span> = combos Mac disponibles en plus des touches simples
-    &nbsp;·&nbsp; [H] ou [ESC] pour fermer
+    ⌘ Mac &nbsp;·&nbsp; Ctrl Windows/Linux &nbsp;·&nbsp; [H] ou [ESC] pour fermer
   </div>
 </div>`;
     overlay.addEventListener('click', () => { _helpVisible = false; overlay.remove(); });
@@ -670,12 +679,12 @@ document.addEventListener('keydown', function (e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' ||
       e.target.tagName === 'SELECT') return;
 
-  const cmd  = e.metaKey;   // ⌘ Mac
-  const ctrl = e.ctrlKey;
+  const cmd  = e.metaKey;    // ⌘ Mac
+  const ctrl = e.ctrlKey;   // Ctrl Windows/Linux (aussi accepté sur Mac)
   const shift = e.shiftKey;
-  const mod  = cmd || ctrl; // any modifier
+  const mod  = cmd || ctrl;  // ⌘ ou Ctrl selon la plateforme
 
-  // ── ⌘ / Ctrl combos (Mac HIG) ────────────────────────────────────────────
+  // ── Combos modificateurs (⌘ Mac · Ctrl Win/Linux) ────────────────────────
   if (mod) {
     switch (e.code) {
       // ⌘Space / Ctrl+Space — Play/Pause  (⌘Space intercepté par Spotlight → Ctrl préféré)

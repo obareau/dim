@@ -87,10 +87,13 @@ def stop() -> None:
 
 
 def rewind() -> None:
+    """Reset to start and stop. User must explicitly press play afterwards."""
     global _cursor, _elapsed_sec
+    import dataclasses
     with _lock:
         if _project is not None:
             _cursor = init_cursor(_project)
+            _cursor = dataclasses.replace(_cursor, is_playing=False)
             _elapsed_sec = 0.0
 
 

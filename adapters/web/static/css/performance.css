@@ -1061,6 +1061,64 @@ body.performance-mode .main-content {
 }
 
 
+/* ── Touch bar ── */
+.pf-touch-bar {
+  display: none; /* masqué par défaut — affiché sur touch/mobile */
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--th-header-bg, #111);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pf-touch-btn {
+  font-family: var(--th-mono, monospace);
+  font-size: 16px;
+  min-width: 52px;
+  min-height: 44px;  /* taille minimum recommandée Apple HIG pour les cibles tactiles */
+  padding: 0 10px;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  background: rgba(255,255,255,0.05);
+  color: var(--th-fg, #ccc);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
+}
+
+.pf-touch-btn:active {
+  background: rgba(255,255,255,0.15);
+  border-color: var(--th-accent, #e8c830);
+}
+
+.pf-touch-play  { min-width: 64px; font-size: 20px; color: var(--th-accent, #e8c830); }
+.pf-touch-adv   { min-width: 58px; background: rgba(204, 136, 0, 0.12); border-color: rgba(204,136,0,0.3); color: #cc8800; }
+.pf-touch-tap   { font-size: 11px; letter-spacing: 0.1em; }
+.pf-touch-help  { font-size: 14px; min-width: 44px; color: #555; }
+.pf-touch-bpm   {
+  font-family: var(--th-mono, monospace);
+  font-size: 15px;
+  color: var(--th-accent, #e8c830);
+  min-width: 52px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.pf-touch-sep {
+  width: 1px;
+  height: 28px;
+  background: rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  margin: 0 2px;
+}
+
 /* ══════════════════════════════════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════════════════════════════════ */
@@ -1071,10 +1129,16 @@ body.performance-mode .main-content {
   .pf-header { height: auto; min-height: 56px; flex-wrap: wrap; }
   .pf-tempo  { font-size: 24px; }
   .pf-footer-shortcuts { display: none; }
+  .pf-touch-bar { display: flex; } /* afficher la touch bar sur tablette */
 }
 
 @media (max-width: 600px) {
   .pf-header-right  { display: none; }
   .pf-tempo         { font-size: 20px; }
   .pf-header-left   { min-width: 100px; }
+}
+
+/* Forcer la touch bar sur les appareils réellement tactiles */
+@media (hover: none) and (pointer: coarse) {
+  .pf-touch-bar { display: flex; }
 }
