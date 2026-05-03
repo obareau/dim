@@ -187,3 +187,27 @@ Dans M5Burner : **Custom flash** → sélectionner le `.bin` → adresse **0x100
 | "Injoignable" en cours de session | WiFi instable ou serveur coupé | Re-scan automatique au bout de 15 échecs |
 | Écran blanc | Mauvaise board sélectionnée | Recompiler avec la bonne carte dans l'IDE |
 | Toujours port 5002 | Port 5002 sauvegardé en NVS | Hold A+B → SAVE & REBOOT pour forcer re-scan |
+
+---
+
+## Commandes utiles (macOS)
+
+### Lancer le serveur D.I.M sur le port 5001
+```bash
+python run_web.py --port 5001
+```
+
+### Vérifier ce qui tourne sur le port 5001
+```bash
+lsof -i :5001
+```
+
+### Tuer le process sur le port 5001
+```bash
+lsof -ti :5001 | xargs kill -9
+```
+
+### Tuer n'importe quel port (remplacer 5001)
+```bash
+lsof -ti :PORT | xargs kill -9
+```
