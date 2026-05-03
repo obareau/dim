@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 # D.I.M — M5Stack build + flash (PlatformIO)
+# Compatible bash 3.2+ (macOS default)
 # ─────────────────────────────────────────────────────────────────────────
 # Usage:
 #   ./flash.sh                        → build tous les envs
@@ -20,13 +21,19 @@ if ! command -v pio &>/dev/null; then
   exit 1
 fi
 
-declare -A ENVS=( [core]="m5stack_core" [core2]="m5stack_core2" [stickc]="m5stickc_plus" )
+# Pas de declare -A (bash 3.2 macOS) → fonction de mapping
+env_name() {
+  case "$1" in
+    core)   echo "m5stack_core"    ;;
+    core2)  echo "m5stack_core2"   ;;
+    stickc) echo "m5stickc_plus"   ;;
+    *)      echo "$1"              ;;
+  esac
+}
 
 MODE="${1:-build}"
 TARGET="${2:-all}"
 PORT="${3:-}"
-
-env_name() { echo "${ENVS[$1]:-$1}"; }
 
 case "$MODE" in
   clean)
@@ -36,7 +43,7 @@ case "$MODE" in
     ;;
 
   build)
-    if [[ "$TARGET" == "all" ]]; then
+    if [ "$TARGET" = "all" ]; then
       echo "🔨  Building all envs..."
       pio run --project-dir "$DIR"
     else
@@ -51,7 +58,7 @@ case "$MODE" in
     ENV=$(env_name "$TARGET")
     echo "🔨  Building $ENV ..."
     pio run --project-dir "$DIR" -e "$ENV"
-    if [[ -n "$PORT" ]]; then
+    if [ -n "$PORT" ]; then
       echo "⚡  Flash → $PORT"
       pio run --project-dir "$DIR" -e "$ENV" -t upload --upload-port "$PORT"
     else
@@ -69,7 +76,7 @@ case "$MODE" in
     for key in core core2 stickc; do
       ENV=$(env_name "$key")
       SRC="$DIR/.pio/build/$ENV/firmware.bin"
-      if [[ -f "$SRC" ]]; then
+      if [ -f "$SRC" ]; then
         DEST="$DIR/dist/DIM_M5Unified_${key}_${DATE}.bin"
         cp "$SRC" "$DEST"
         echo "📦  $key → dist/$(basename "$DEST")"
