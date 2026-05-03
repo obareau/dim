@@ -152,15 +152,14 @@ bool discoverIP(const char* ip, uint16_t* found) {
 bool runDiscovery() {
   const char* ips[2] = { cfg.ip1, cfg.ip2 };
 
-  // Fast-path : dernier port connu en NVS
-  if (cfg.port) {
+  // Fast-path : dernier port connu en NVS (ignoré s'il est hors plage autorisée)
+  if (cfg.port >= PORT_MIN && cfg.port <= PORT_MAX) {
     for (int i = 0; i < 2; i++) {
       if (tryPort(ips[i], cfg.port)) {
         serverBase = String("http://") + ips[i] + ":" + cfg.port;
         return true;
       }
     }
-    // Port sauvegardé ne répond plus → scan complet
     M5.Display.setTextSize(1);
     M5.Display.setTextColor(C_ORANGE, C_BG);
     M5.Display.setCursor(4, 80);
