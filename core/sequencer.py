@@ -106,6 +106,7 @@ class LaneCursor:
     gosub_stack: tuple[GosubFrame, ...]
     cond_states: dict[str, ConditionState]  # keyed by cue_id or section_id+"_loop"/"_rev"
     waiting_for_manual: bool
+    veto_jump: bool = False              # operator flagged: skip next JUMP (consumed on use)
 
 
 @dataclass(frozen=True)
@@ -535,6 +536,11 @@ def _advance_section(
 
     # JUMP section
     if op == InstructionOp.JUMP:
+        # Operator veto: skip this jump once, consume the flag
+        if lc.veto_jump:
+            lc = dataclasses.replace(lc, veto_jump=False)
+            return _next_section_in_lane(lc, lane, project, time_sig, gosub_limit, events)
+
         if inst.condition:
             state = lc.cond_states.get(sec.id + "_jump", ConditionState())
             do_jump = evaluate(inst.condition, state)

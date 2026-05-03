@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}ESP32 Preview{% endblock %}
+{% block body_class %}esp32-mode{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/esp32_preview.css') }}">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+{% endblock %}
+{% block topnav %}{% endblock %}
+
+{% block content %}
+<div class="esp32-workspace">
+
+  {# ── Controls ── #}
+  <div class="esp32-controls">
+    <span class="esp32-title">D.I.M · ESP32 Display Preview</span>
+    <div class="esp32-btns">
+      <button class="esp32-mode-btn active" data-mode="lcd20x4" onclick="setMode('lcd20x4')">LCD 20×4</button>
+      <button class="esp32-mode-btn" data-mode="oled128"  onclick="setMode('oled128')">OLED 128×64</button>
+      <button class="esp32-mode-btn" data-mode="oled32"   onclick="setMode('oled32')">OLED 128×32</button>
+    </div>
+    <div class="esp32-palette-btns">
+      <button class="esp32-pal-btn active" data-pal="amber" onclick="setPalette('amber')">Amber</button>
+      <button class="esp32-pal-btn" data-pal="green"  onclick="setPalette('green')">Green</button>
+      <button class="esp32-pal-btn" data-pal="white"  onclick="setPalette('white')">OLED White</button>
+      <button class="esp32-pal-btn" data-pal="blue"   onclick="setPalette('blue')">OLED Blue</button>
+    </div>
+    <a href="/performance" class="esp32-link">← PERFORM</a>
+  </div>
+
+  {# ── Device bezel ── #}
+  <div class="esp32-scene">
+
+    {# LCD 20×4 #}
+    <div class="esp32-device" id="device-lcd20x4">
+      <div class="esp32-bezel lcd-bezel">
+        <div class="lcd-screen" id="lcd-screen">
+          <div class="lcd-grid" id="lcd-grid">
+            {# 4 rows × 20 chars — filled by JS #}
+            <div class="lcd-row" id="lcd-row-0"></div>
+            <div class="lcd-row" id="lcd-row-1"></div>
+            <div class="lcd-row" id="lcd-row-2"></div>
+            <div class="lcd-row" id="lcd-row-3"></div>
+          </div>
+          <div class="lcd-scanlines"></div>
+        </div>
+        <div class="esp32-label">HD44780 · 20×4</div>
+      </div>
+    </div>
+
+    {# OLED 128×64 #}
+    <div class="esp32-device hidden" id="device-oled128">
+      <div class="esp32-bezel oled-bezel">
+        <div class="oled-screen" id="oled-screen-128">
+          <div class="oled-content" id="oled-content-128">
+            <div class="oled-row oled-header" id="oled-h-128"></div>
+            <div class="oled-sep"></div>
+            <div class="oled-row oled-sub" id="oled-pos-128"></div>
+            <div class="oled-sep"></div>
+            <div class="oled-row oled-cue" id="oled-c0-128"></div>
+            <div class="oled-row oled-cue" id="oled-c1-128"></div>
+            <div class="oled-row oled-cue" id="oled-c2-128"></div>
+            <div class="oled-row oled-cue" id="oled-c3-128"></div>
+          </div>
+          <div class="lcd-scanlines oled-scanlines"></div>
+        </div>
+        <div class="esp32-label">SSD1306 · 128×64</div>
+      </div>
+    </div>
+
+    {# OLED 128×32 #}
+    <div class="esp32-device hidden" id="device-oled32">
+      <div class="esp32-bezel oled-bezel oled32-bezel">
+        <div class="oled-screen oled32-screen" id="oled-screen-32">
+          <div class="oled-content oled32-content" id="oled-content-32">
+            <div class="oled-row oled-header oled32-header" id="oled-h-32"></div>
+            <div class="oled-sep"></div>
+            <div class="oled-row oled-cue oled32-cue" id="oled-c0-32"></div>
+            <div class="oled-row oled-cue oled32-cue" id="oled-c1-32"></div>
+          </div>
+          <div class="lcd-scanlines oled-scanlines"></div>
+        </div>
+        <div class="esp32-label">SSD1306 · 128×32</div>
+      </div>
+    </div>
+
+  </div>{# /esp32-scene #}
+
+  {# ── Live data panel ── #}
+  <div class="esp32-data">
+    <div class="esp32-data-title">LIVE STATE</div>
+    <div class="esp32-data-row"><span>BPM</span><span id="esp-bpm">—</span></div>
+    <div class="esp32-data-row"><span>BAR</span><span id="esp-bar">—</span></div>
+    <div class="esp32-data-row"><span>BEAT</span><span id="esp-beat">—</span></div>
+    <div class="esp32-data-row"><span>STATUS</span><span id="esp-status">—</span></div>
+    <div class="esp32-data-sep"></div>
+    <div class="esp32-data-title">LANES</div>
+    <div id="esp-lanes"></div>
+    <div class="esp32-data-sep"></div>
+    <div class="esp32-data-row"><span>SOCKET</span><span id="esp-sock">○</span></div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/esp32_preview.js') }}?v={{ cache_bust }}"></script>
+{% endblock %}

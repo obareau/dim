@@ -103,9 +103,10 @@
     <div class="pf-lane-header">
       <span class="pf-lane-num">{% if lane.is_conductor %}⊛{% else %}{{ loop.index }}{% endif %}</span>
       <span class="pf-lane-name">{{ lane.name | upper }}</span>
-      <span class="pf-lane-speed">{{ lane.speed_ratio }}</span>
+      <span class="pf-lane-speed" title="Speed ratio">{{ lane.speed_ratio }}</span>
       <span class="pf-lane-section" id="lsec-{{ lane.id }}"></span>
       <span class="pf-lane-pass"   id="lpass-{{ lane.id }}"></span>
+      <span class="pf-lane-next"   id="lnext-{{ lane.id }}" title="Next section action"></span>
     </div>
 
     <div class="pf-cue-list" id="lcues-{{ lane.id }}">
@@ -133,10 +134,11 @@
   <span class="pf-footer-cmd" id="pf-footer-cmd"></span>
   <div class="pf-footer-spacer"></div>
   <span class="pf-footer-shortcuts">
-    [SPACE] Play/Stop &nbsp;·&nbsp; [R] Rewind &nbsp;·&nbsp; [S] Stop &nbsp;·&nbsp;
-    [↑/↓] BPM±1 &nbsp;·&nbsp; [⇧↑/↓] BPM±5 &nbsp;·&nbsp;
-    [1–{{ lanes_meta|length }}] Focus lane &nbsp;·&nbsp; [↵] Advance focused &nbsp;·&nbsp;
-    [A] Advance all waiting &nbsp;·&nbsp; [T] Theme &nbsp;·&nbsp; [E] Editor
+    [SPC] Play &nbsp;·&nbsp; [R] Rew &nbsp;·&nbsp; [S] Stop &nbsp;·&nbsp;
+    [↑↓] BPM &nbsp;·&nbsp; [P…] Tap &nbsp;·&nbsp; [G] TimeSig &nbsp;·&nbsp;
+    [1–{{ lanes_meta|length }}] Focus &nbsp;·&nbsp; [←→] Prev/Next &nbsp;·&nbsp;
+    [↵] Advance &nbsp;·&nbsp; [A] All &nbsp;·&nbsp; [V] Veto jump &nbsp;·&nbsp;
+    [+/-] Zoom &nbsp;·&nbsp; [T] Theme &nbsp;·&nbsp; [H] Help
   </span>
 </footer>
 

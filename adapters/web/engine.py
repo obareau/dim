@@ -110,6 +110,15 @@ def set_playing(state: bool) -> None:
     play() if state else stop()
 
 
+def set_time_signature(ts: str) -> None:
+    """Change the global time signature (e.g. '3/4', '6/8')."""
+    global _cursor
+    import dataclasses
+    with _lock:
+        if _cursor is not None:
+            _cursor = dataclasses.replace(_cursor, time_signature=ts)
+
+
 def trigger_manual(lane_id: str) -> bool:
     """Release a LOOP UNTIL MANUAL / SKIP UNTIL MANUAL wait on a lane.
     Returns True if the lane was indeed waiting, False otherwise."""
@@ -125,6 +134,23 @@ def trigger_manual(lane_id: str) -> bool:
         cue_id = (lc.cue_queue[lc.cue_index]
                   if lc.cue_index < len(lc.cue_queue) else '')
         _cursor = trigger_manual_for_lane(_cursor, lane_id, cue_id)
+        return True
+
+
+def veto_jump(lane_id: str) -> bool:
+    """Flag a lane to skip its next JUMP instruction (consumed on use).
+    Returns True if the flag was set (lane exists), False otherwise."""
+    global _cursor
+    import dataclasses
+    with _lock:
+        if _cursor is None:
+            return False
+        lc = _cursor.lane_cursors.get(lane_id)
+        if lc is None:
+            return False
+        new_lc = dataclasses.replace(lc, veto_jump=True)
+        new_cursors = {**_cursor.lane_cursors, lane_id: new_lc}
+        _cursor = dataclasses.replace(_cursor, lane_cursors=new_cursors)
         return True
 
 
@@ -180,6 +206,9 @@ def _build_state(
         beats_rem = lc.beats_remaining
         bars_rem = beats_rem / (bpb / ratio) if bpb and ratio else 0.0
 
+        # Section-level instruction badge (what fires when this section ends)
+        sec_badge = instruction_badge(sec.instruction) if sec and sec.instruction else ""
+
         lanes_state[lane.id] = {
             "id": lane.id,
             "name": lane.name,
@@ -188,10 +217,12 @@ def _build_state(
             "is_conductor": lane.is_conductor,
             "ended": lc.section_id is None,
             "waiting_manual": lc.waiting_for_manual,
+            "veto_jump": lc.veto_jump,
             "section_id": lc.section_id,
             "section_name": sec.name if sec else None,
             "section_type": sec.type if sec else None,
             "section_pass": lc.section_pass,
+            "section_next": sec_badge,        # badge for what happens at section end
             "cue": _cue_state(cue) if cue else None,
             "next_cue": _cue_state(next_cue) if next_cue else None,
             "prev_cue": _cue_state(prev_cue) if prev_cue else None,

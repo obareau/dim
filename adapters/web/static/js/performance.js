@@ -186,6 +186,21 @@ function updateLane(lane, state) {
   setText('lsec-'  + lane.id, lane.section_name ? lane.section_name.toUpperCase() : '');
   setText('lpass-' + lane.id, lane.section_pass > 0 ? `×${lane.section_pass}` : '');
 
+  // Section-end instruction badge (what fires when this section finishes)
+  const nextEl = el('lnext-' + lane.id);
+  if (nextEl) {
+    const badge = lane.section_next || '';
+    const vetoed = lane.veto_jump && badge.includes('↗');
+    nextEl.textContent = badge ? ('→ ' + badge + (vetoed ? ' ✗' : '')) : '';
+    // Color-code by instruction type
+    nextEl.className = 'pf-lane-next' +
+      (vetoed              ? ' jump vetoed' :
+       badge.includes('↗') ? ' jump' :
+       badge.includes('↺') ? ' loop' :
+       badge.includes('⊙') ? ' manual' :
+       badge.includes('⤵') ? ' gosub' : '');
+  }
+
   // Cue list
   renderCueList(lane);
 
@@ -397,17 +412,20 @@ async function pollSyncStatus() {
 pollSyncStatus();
 setInterval(pollSyncStatus, 3000);
 
-// ── Manual advance ────────────────────────────────────────────────────────────
+// ── Lane focus ────────────────────────────────────────────────────────────────
 
-// Focused lane index (0-based), or -1 = none.
 let _focusedLane = -1;
 
 function getLaneMeta() {
-  // Returns ordered array of { el, id, waiting } from current state
   return Array.from(document.querySelectorAll('.pf-lane')).map(laneEl => {
     const id = laneEl.dataset.laneId;
-    const laneState = _state?.lanes?.[id];
-    return { el: laneEl, id, waiting: !!(laneState?.waiting_manual) };
+    const ls = _state?.lanes?.[id];
+    return {
+      el:      laneEl,
+      id,
+      waiting: !!(ls?.waiting_manual),
+      hasJump: !!(ls?.section_next?.includes('↗')),
+    };
   });
 }
 
@@ -418,9 +436,26 @@ function focusLane(n /* 1-based */) {
   lanes.forEach((l, i) => l.el.classList.toggle('pf-lane--focused', i === _focusedLane));
   if (_focusedLane >= 0) {
     const l = lanes[_focusedLane];
-    showCmd(`⊡ LANE ${n}${l.waiting ? '  ↵ ADVANCE' : ''}`);
+    const hint = l.waiting  ? '  ↵ ADVANCE' :
+                 l.hasJump  ? '  V VETO JUMP' : '';
+    showCmd(`⊡ LANE ${n}${hint}`);
   }
 }
+
+function focusRelative(delta) {
+  const lanes = getLaneMeta();
+  if (!lanes.length) return;
+  const next = (_focusedLane + delta + lanes.length) % lanes.length;
+  focusLane(next + 1);
+}
+
+function clearFocus() {
+  _focusedLane = -1;
+  document.querySelectorAll('.pf-lane').forEach(l => l.classList.remove('pf-lane--focused'));
+  showCmd('FOCUS CLEARED');
+}
+
+// ── Manual advance ────────────────────────────────────────────────────────────
 
 function advanceLane(laneId) {
   socket.emit('manual_advance', { lane_id: laneId });
@@ -434,19 +469,179 @@ function advanceAllWaiting() {
   showCmd(`⊙ ADVANCE ALL (${waiting.length})`);
 }
 
-// Cycle through the theme list
+// ── Veto JUMP ─────────────────────────────────────────────────────────────────
+
+function vetoJump() {
+  const lanes = getLaneMeta();
+  const target = _focusedLane >= 0 ? lanes[_focusedLane] : lanes.find(l => l.hasJump);
+  if (!target) { showCmd('NO JUMP TO VETO'); return; }
+  socket.emit('veto_jump', { lane_id: target.id });
+  showCmd(`⛔ VETO → ${target.id}`);
+}
+
+// ── Tap tempo ─────────────────────────────────────────────────────────────────
+
+const _tapTimes = [];
+const TAP_WINDOW = 3000; // ms — reset if gap > 3s
+const TAP_MIN    = 2;    // minimum taps before showing BPM
+const TAP_APPLY  = 4;    // apply BPM after N taps
+
+function tapTempo() {
+  const now = Date.now();
+  // Flush old taps
+  while (_tapTimes.length && (now - _tapTimes[0]) > TAP_WINDOW) {
+    _tapTimes.shift();
+  }
+  _tapTimes.push(now);
+
+  if (_tapTimes.length < TAP_MIN) {
+    showCmd(`TAP (${_tapTimes.length}/4)…`, 3000);
+    return;
+  }
+
+  // Average interval of last pairs
+  const intervals = [];
+  for (let i = 1; i < _tapTimes.length; i++) {
+    intervals.push(_tapTimes[i] - _tapTimes[i - 1]);
+  }
+  const avgMs = intervals.reduce((a, b) => a + b, 0) / intervals.length;
+  const bpm   = Math.round(60000 / avgMs * 10) / 10;
+  const clamped = Math.min(300, Math.max(20, bpm));
+
+  showCmd(`TAP: ${clamped.toFixed(1)} BPM (×${_tapTimes.length})`, 3000);
+
+  if (_tapTimes.length >= TAP_APPLY) {
+    setTempo(clamped);
+    _tapTimes.length = 0; // reset after applying
+  }
+}
+
+// ── Zoom ─────────────────────────────────────────────────────────────────────
+
+const _zoomLevels = [0.7, 0.85, 1.0, 1.15, 1.3];
+let _zoomIdx = parseInt(localStorage.getItem('pf-zoom') || '2');
+
+function applyZoom(idx) {
+  _zoomIdx = Math.max(0, Math.min(_zoomLevels.length - 1, idx));
+  localStorage.setItem('pf-zoom', _zoomIdx);
+  const scale = _zoomLevels[_zoomIdx];
+  const lanesEl = el('pf-lanes');
+  if (lanesEl) {
+    lanesEl.style.fontSize  = scale + 'em';
+    lanesEl.style.transform = _zoomIdx === 2 ? '' : `scale(${scale})`;
+    lanesEl.style.transformOrigin = 'top left';
+    // Compensate height so footer stays visible
+    lanesEl.style.height = _zoomIdx === 2 ? '' : `${100 / scale}%`;
+  }
+  showCmd(`ZOOM ${Math.round(scale * 100)}%`);
+}
+
+function zoomIn()    { applyZoom(_zoomIdx + 1); }
+function zoomOut()   { applyZoom(_zoomIdx - 1); }
+function zoomReset() { applyZoom(2); }
+
+// ── Time signature ────────────────────────────────────────────────────────────
+
+const _timeSigs = ['4/4', '3/4', '6/8', '5/4', '7/8', '2/4', '12/8'];
+let _timeSigIdx = 0;
+
+function initTimeSigIdx() {
+  const current = el('pf-ts')?.textContent?.trim() || '4/4';
+  _timeSigIdx = Math.max(0, _timeSigs.indexOf(current));
+}
+
+function cycleTimeSig(reverse = false) {
+  _timeSigIdx = (_timeSigIdx + (reverse ? -1 : 1) + _timeSigs.length) % _timeSigs.length;
+  const ts = _timeSigs[_timeSigIdx];
+  fetch('/api/transport/time-signature', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ time_signature: ts }),
+  });
+  showCmd(`TIME SIG → ${ts}`);
+}
+
+// ── Theme cycle ───────────────────────────────────────────────────────────────
+
 const _themes = ['default','gruvbox','nord','dracula','solarized','monokai',
                  'onedark','catppuccin','tokyo','iceberg','tango','light','astro'];
 
-function cycleTheme() {
+function cycleTheme(reverse = false) {
   const current = document.body.dataset.theme || 'default';
   const idx  = _themes.indexOf(current);
-  const next = _themes[(idx + 1) % _themes.length];
+  const next = _themes[(idx + (reverse ? -1 : 1) + _themes.length) % _themes.length];
   setTheme(next);
   showCmd(`THEME → ${next.toUpperCase()}`);
 }
 
+// ── Help overlay ──────────────────────────────────────────────────────────────
+
+let _helpVisible = false;
+function toggleHelp() {
+  _helpVisible = !_helpVisible;
+  let overlay = el('pf-help-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id        = 'pf-help-overlay';
+    overlay.className = 'pf-help-overlay';
+    overlay.innerHTML = `
+<div class="pf-help-box">
+  <div class="pf-help-title">D.I.M — KEYBOARD SHORTCUTS</div>
+  <div class="pf-help-grid">
+    <div class="pf-help-section">TRANSPORT</div>
+    <div></div>
+    <div>[SPACE]</div><div>Play / Pause</div>
+    <div>[R]</div><div>Rewind to start</div>
+    <div>[S]</div><div>Stop</div>
+
+    <div class="pf-help-section">TEMPO</div>
+    <div></div>
+    <div>[↑] / [↓]</div><div>BPM +1 / -1</div>
+    <div>[⇧↑] / [⇧↓]</div><div>BPM +5 / -5</div>
+    <div>[P P P P]</div><div>Tap tempo (4 taps → apply)</div>
+
+    <div class="pf-help-section">TIME SIG</div>
+    <div></div>
+    <div>[G]</div><div>Cycle → 4/4 · 3/4 · 6/8 · 5/4 · 7/8 …</div>
+    <div>[⇧G]</div><div>Cycle ←</div>
+
+    <div class="pf-help-section">LANE FOCUS</div>
+    <div></div>
+    <div>[1–4]</div><div>Focus lane N</div>
+    <div>[←] / [→]</div><div>Prev / next lane</div>
+    <div>[0]</div><div>Clear focus</div>
+
+    <div class="pf-help-section">MANUAL ADVANCE</div>
+    <div></div>
+    <div>[↵]</div><div>Advance focused lane (or first waiting)</div>
+    <div>[A]</div><div>Advance ALL waiting lanes</div>
+
+    <div class="pf-help-section">BRANCHES</div>
+    <div></div>
+    <div>[V]</div><div>Veto JUMP on focused lane</div>
+
+    <div class="pf-help-section">VIEW</div>
+    <div></div>
+    <div>[+] / [-]</div><div>Zoom in / out</div>
+    <div>[\\]</div><div>Reset zoom</div>
+    <div>[T]</div><div>Next theme  [⇧T] Prev theme</div>
+    <div>[E]</div><div>Editor</div>
+    <div>[H]</div><div>This help</div>
+  </div>
+  <div class="pf-help-close">[H] or [ESC] to close</div>
+</div>`;
+    overlay.addEventListener('click', () => { _helpVisible = false; overlay.remove(); });
+    document.body.appendChild(overlay);
+  } else {
+    overlay.remove();
+  }
+}
+
 // ── Keyboard shortcuts ────────────────────────────────────────────────────────
+
+// Init zoom and timesig on load
+applyZoom(_zoomIdx);
+document.addEventListener('DOMContentLoaded', initTimeSigIdx);
 
 document.addEventListener('keydown', function (e) {
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' ||
@@ -459,38 +654,42 @@ document.addEventListener('keydown', function (e) {
       e.preventDefault();
       transport('toggle');
       break;
-
     case 'KeyR':
-      transport('rewind');
+      if (!e.shiftKey) transport('rewind');
       break;
-
     case 'KeyS':
       transport('stop');
-      break;
-
-    // ── Navigation ──
-    case 'KeyE':
-      window.location.href = '/editor';
       break;
 
     // ── Tempo ──
     case 'ArrowUp':
       e.preventDefault();
-      if (_state?.tempo_bpm) {
-        const bpm = Math.min(300, (_state.tempo_bpm || 120) + (e.shiftKey ? 5 : 1));
-        setTempo(bpm);
-      }
+      if (_state?.tempo_bpm) setTempo(Math.min(300, (_state.tempo_bpm || 120) + (e.shiftKey ? 5 : 1)));
       break;
-
     case 'ArrowDown':
       e.preventDefault();
-      if (_state?.tempo_bpm) {
-        const bpm = Math.max(20, (_state.tempo_bpm || 120) - (e.shiftKey ? 5 : 1));
-        setTempo(bpm);
-      }
+      if (_state?.tempo_bpm) setTempo(Math.max(20, (_state.tempo_bpm || 120) - (e.shiftKey ? 5 : 1)));
+      break;
+    case 'KeyP':
+      tapTempo();
       break;
 
-    // ── Manual advance — focused lane ──
+    // ── Time signature ──
+    case 'KeyG':
+      cycleTimeSig(e.shiftKey);
+      break;
+
+    // ── Lane focus ──
+    case 'ArrowLeft':
+      e.preventDefault();
+      if (_focusedLane >= 0) focusRelative(-1);
+      break;
+    case 'ArrowRight':
+      e.preventDefault();
+      if (_focusedLane >= 0) focusRelative(1);
+      break;
+
+    // ── Manual advance ──
     case 'Enter':
     case 'NumpadEnter': {
       e.preventDefault();
@@ -500,36 +699,58 @@ document.addEventListener('keydown', function (e) {
       } else if (_focusedLane >= 0) {
         showCmd('LANE NOT WAITING');
       } else {
-        // No focus → advance first waiting lane
         const w = lanes.find(l => l.waiting);
         if (w) advanceLane(w.id);
-        else showCmd('NO LANE WAITING');
+        else   showCmd('NO LANE WAITING');
       }
       break;
     }
-
-    // ── Manual advance — ALL waiting lanes ──
     case 'KeyA':
-      e.preventDefault();
       advanceAllWaiting();
       break;
 
-    // ── Theme cycle ──
-    case 'KeyT':
-      cycleTheme();
+    // ── Veto JUMP ──
+    case 'KeyV':
+      vetoJump();
       break;
 
-    // ── Lane focus 1–9 ──
+    // ── Zoom ──
+    case 'Equal':
+    case 'NumpadAdd':
+      e.preventDefault();
+      zoomIn();
+      break;
+    case 'Minus':
+    case 'NumpadSubtract':
+      e.preventDefault();
+      zoomOut();
+      break;
+    case 'Backslash':
+    case 'NumpadDecimal':
+      zoomReset();
+      break;
+
+    // ── Theme ──
+    case 'KeyT':
+      cycleTheme(e.shiftKey);
+      break;
+
+    // ── View ──
+    case 'KeyE':
+      window.location.href = '/editor';
+      break;
+    case 'KeyH':
+    case 'Escape':
+      if (e.code === 'Escape' && !_helpVisible) break;
+      toggleHelp();
+      break;
+
+    // ── Lane focus 1–9 + 0 ──
     default:
       if (e.code.startsWith('Digit') && !e.ctrlKey && !e.metaKey) {
         const n = parseInt(e.key);
-        if (n >= 1 && n <= 9) focusLane(n);
-      }
-      // 0 = deselect focus
-      if (e.code === 'Digit0') {
-        _focusedLane = -1;
-        document.querySelectorAll('.pf-lane').forEach(l => l.classList.remove('pf-lane--focused'));
-        showCmd('FOCUS CLEARED');
+        if (n >= 1 && n <= 9) { e.preventDefault(); focusLane(n); }
+        if (n === 0)           { e.preventDefault(); clearFocus(); }
       }
   }
 });

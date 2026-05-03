@@ -234,6 +234,21 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
         engine.set_tempo(bpm)
         return jsonify({"ok": True, "tempo_bpm": bpm})
 
+    @app.route("/api/transport/time-signature", methods=["POST"])
+    def api_time_signature():
+        data = request.get_json(force=True) or {}
+        ts   = data.get("time_signature", "")
+        if not ts:
+            return jsonify({"error": "time_signature required"}), 422
+        engine.set_time_signature(ts)
+        socketio.emit("state_update", engine.get_state())
+        return jsonify({"ok": True, "time_signature": ts})
+
+    @app.route("/esp32")
+    def esp32_preview():
+        """Emulated ESP32 LCD/OLED display preview."""
+        return render_template("esp32_preview.html")
+
     @app.route("/api/validate", methods=["POST"])
     def api_validate():
         data = request.get_json(force=True)
@@ -452,6 +467,14 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
         """Trigger a manual advance on a lane (releases LOOP UNTIL MANUAL wait)."""
         lane_id = (data or {}).get("lane_id", "")
         fired = engine.trigger_manual(lane_id)
+        if fired:
+            emit("state_update", engine.get_state(), broadcast=True)
+
+    @socketio.on("veto_jump")
+    def on_veto_jump(data):
+        """Flag a lane to skip its next JUMP instruction."""
+        lane_id = (data or {}).get("lane_id", "")
+        fired = engine.veto_jump(lane_id)
         if fired:
             emit("state_update", engine.get_state(), broadcast=True)
 

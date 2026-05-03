@@ -716,8 +716,9 @@ body.performance-mode .main-content {
 }
 
 .pf-lane-speed   { font-size: 8px; color: rgba(255,255,255,0.2); letter-spacing: 0.1em; }
-.pf-lane-section { font-size: 8px; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; margin-left: auto; white-space: nowrap; }
+.pf-lane-section { font-size: 8px; color: rgba(255,255,255,0.3); letter-spacing: 0.1em; margin-left: auto; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 120px; }
 .pf-lane-pass    { font-size: 8px; color: rgba(255,255,255,0.15); white-space: nowrap; }
+.pf-lane-next    { font-size: 8px; white-space: nowrap; }
 
 /* Cue list */
 .pf-cue-list {
@@ -863,16 +864,100 @@ body.performance-mode .main-content {
   animation: wait-pulse 1.2s ease-in-out infinite;
 }
 
-/* ── Lane focus (digit keys 1–9) ── */
+/* ── Section-next badge (what fires at section end) ── */
+.pf-lane-next {
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  margin-left: auto;
+  opacity: 0.8;
+}
+.pf-lane-next.jump   { color: #4488ff; }
+.pf-lane-next.vetoed { color: #ff4444; text-decoration: line-through; }
+.pf-lane-next.loop   { color: #aaaaaa; }
+.pf-lane-next.manual { color: #cc8800; }
+.pf-lane-next.gosub  { color: #aa55ff; }
+
+/* ── Lane focus (digit keys 1–9) — VISIBLE FROM 3 METRES ── */
 .pf-lane--focused {
-  outline: 2px solid var(--lane-color, var(--th-accent));
-  outline-offset: -2px;
   position: relative;
-  z-index: 1;
+  z-index: 2;
+  box-shadow:
+    inset 0 0 0 3px var(--lane-color, var(--th-accent)),
+    0 0 18px color-mix(in srgb, var(--lane-color, var(--th-accent)) 40%, transparent);
 }
 
 .pf-lane--focused .pf-lane-header {
-  background: color-mix(in srgb, var(--lane-color, var(--th-accent)) 14%, transparent);
+  background: color-mix(in srgb, var(--lane-color, var(--th-accent)) 22%, transparent);
+}
+
+.pf-lane--focused .pf-lane-num {
+  color: var(--lane-color, var(--th-accent));
+  font-size: 14px;
+  text-shadow: 0 0 8px var(--lane-color, var(--th-accent));
+}
+
+.pf-lane--focused .pf-lane-name {
+  color: var(--lane-color, var(--th-accent));
+  text-shadow: 0 0 6px color-mix(in srgb, var(--lane-color, var(--th-accent)) 50%, transparent);
+}
+
+/* ── Help overlay ── */
+.pf-help-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.pf-help-box {
+  background: #0d0d0d;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 24px 32px;
+  max-width: 520px;
+  width: 90%;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+}
+
+.pf-help-title {
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  color: var(--th-accent);
+  margin-bottom: 18px;
+  border-bottom: 1px solid #222;
+  padding-bottom: 10px;
+}
+
+.pf-help-grid {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 4px 12px;
+  font-size: 11px;
+  color: #888;
+}
+
+.pf-help-grid > div:nth-child(odd)  { color: #ccc; }
+.pf-help-grid > div:nth-child(even) { color: #666; }
+.pf-help-section {
+  grid-column: 1 / -1;
+  color: var(--th-accent2, #e8c830) !important;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  margin-top: 10px;
+  opacity: 0.7;
+}
+
+.pf-help-close {
+  margin-top: 18px;
+  font-size: 9px;
+  color: #333;
+  text-align: center;
+  letter-spacing: 0.1em;
 }
 
 /* ── Manual waiting — big pulsing prompt ── */

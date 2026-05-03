@@ -1,0 +1,340 @@
+/*
+ * D.I.M — esp32_preview.css
+ * Emulated LCD/OLED display for ESP32 remote display preview.
+ */
+
+/* ── Palette vars ── */
+:root {
+  --lcd-bg:      #1a1400;
+  --lcd-fg:      #ffaa00;
+  --lcd-dim:     #7a5200;
+  --lcd-border:  #3a2800;
+  --lcd-bezel:   #1e1e1e;
+  --lcd-pixel:   rgba(0,0,0,0.08);
+}
+[data-palette="green"] {
+  --lcd-bg:    #001400;
+  --lcd-fg:    #32cd32;
+  --lcd-dim:   #1a5a1a;
+  --lcd-border:#003000;
+  --lcd-bezel: #1a1e1a;
+}
+[data-palette="white"] {
+  --lcd-bg:    #000000;
+  --lcd-fg:    #f0f0f0;
+  --lcd-dim:   #555555;
+  --lcd-border:#222222;
+  --lcd-bezel: #111111;
+}
+[data-palette="blue"] {
+  --lcd-bg:    #00001a;
+  --lcd-fg:    #4488ff;
+  --lcd-dim:   #1a2a5a;
+  --lcd-border:#001030;
+  --lcd-bezel: #0a0a1e;
+}
+
+/* ── Page layout ── */
+body.esp32-mode {
+  background: #0d0d0d;
+  color: #888;
+  font-family: 'Share Tech Mono', monospace;
+  overflow: auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+body.esp32-mode .main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.esp32-workspace {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 24px 20px;
+  min-height: 100vh;
+}
+
+/* ── Top controls ── */
+.esp32-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  width: 100%;
+  max-width: 860px;
+}
+
+.esp32-title {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.12em;
+  flex: 1;
+}
+
+.esp32-btns, .esp32-palette-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.esp32-mode-btn, .esp32-pal-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 4px 8px;
+  border: 1px solid #333;
+  background: #111;
+  color: #555;
+  cursor: pointer;
+  border-radius: 2px;
+}
+.esp32-mode-btn.active, .esp32-pal-btn.active {
+  background: #222;
+  color: #aaa;
+  border-color: #555;
+}
+
+.esp32-link {
+  font-size: 9px;
+  color: #444;
+  text-decoration: none;
+  letter-spacing: 0.1em;
+}
+.esp32-link:hover { color: #888; }
+
+/* ── Scene ── */
+.esp32-scene {
+  display: flex;
+  justify-content: center;
+}
+
+.esp32-device { display: flex; flex-direction: column; align-items: center; }
+.esp32-device.hidden { display: none; }
+
+/* ── LCD bezel ── */
+.esp32-bezel {
+  background: var(--lcd-bezel, #1e1e1e);
+  border-radius: 6px;
+  padding: 16px 20px 24px;
+  box-shadow:
+    0 0 0 2px #333,
+    0 4px 20px rgba(0,0,0,0.8),
+    inset 0 1px 0 rgba(255,255,255,0.03);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.esp32-label {
+  font-size: 8px;
+  color: #333;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* ── LCD screen (HD44780 20×4) ── */
+.lcd-screen {
+  position: relative;
+  background: var(--lcd-bg);
+  border: 2px solid var(--lcd-border);
+  border-radius: 2px;
+  padding: 10px 12px;
+  box-shadow:
+    inset 0 0 20px rgba(0,0,0,0.6),
+    0 0 12px color-mix(in srgb, var(--lcd-fg) 25%, transparent);
+  overflow: hidden;
+  width: 400px;
+}
+
+.lcd-grid {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.lcd-row {
+  font-family: 'VT323', 'Courier New', monospace;
+  font-size: 26px;
+  line-height: 1.35;
+  color: var(--lcd-fg);
+  white-space: pre;
+  letter-spacing: 0.05em;
+  min-height: 35px;
+  text-shadow: 0 0 8px var(--lcd-fg);
+}
+
+.lcd-row .lcd-dim  { color: var(--lcd-dim);  text-shadow: none; }
+.lcd-row .lcd-inv  {
+  background: var(--lcd-fg);
+  color: var(--lcd-bg);
+  text-shadow: none;
+  padding: 0 1px;
+}
+
+/* Scanline overlay */
+.lcd-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 2px,
+    rgba(0,0,0,0.12) 2px,
+    rgba(0,0,0,0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* Pixel-grid overlay */
+.lcd-screen::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(0,0,0,0.06) 4px, rgba(0,0,0,0.06) 5px),
+    repeating-linear-gradient(90deg, transparent, transparent 4px, rgba(0,0,0,0.06) 4px, rgba(0,0,0,0.06) 5px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── OLED screen (SSD1306 128×64) ── */
+.oled-bezel { background: #0a0a0a; }
+
+.oled-screen {
+  position: relative;
+  background: var(--lcd-bg);
+  border: 1px solid #1a1a1a;
+  border-radius: 4px;
+  width: 480px;
+  height: 240px;
+  padding: 8px 12px;
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 12px rgba(0,0,0,0.8),
+    0 0 16px color-mix(in srgb, var(--lcd-fg) 20%, transparent);
+  display: flex;
+  align-items: stretch;
+}
+
+.oled-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 2;
+  position: relative;
+}
+
+.oled-scanlines {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0px,
+    transparent 1px,
+    rgba(0,0,0,0.2) 1px,
+    rgba(0,0,0,0.2) 2px
+  );
+  pointer-events: none;
+  z-index: 3;
+}
+
+.oled-sep {
+  height: 1px;
+  background: var(--lcd-dim);
+  opacity: 0.4;
+  flex-shrink: 0;
+}
+
+.oled-row {
+  font-family: 'Share Tech Mono', monospace;
+  white-space: pre;
+  overflow: hidden;
+  color: var(--lcd-fg);
+  text-shadow: 0 0 4px var(--lcd-fg);
+}
+
+.oled-header {
+  font-size: 22px;
+  line-height: 1.2;
+  font-family: 'VT323', monospace;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.oled-sub {
+  font-size: 13px;
+  line-height: 1.3;
+  color: var(--lcd-dim);
+  flex-shrink: 0;
+}
+
+.oled-cue {
+  font-size: 15px;
+  line-height: 1.4;
+  flex: 1;
+}
+
+.oled-cue.active {
+  color: var(--lcd-fg);
+  font-weight: bold;
+}
+.oled-cue.dim { color: var(--lcd-dim); }
+.oled-cue.waiting { animation: esp-pulse 1.2s ease-in-out infinite; }
+
+/* OLED 128×32 */
+.oled32-bezel { background: #080808; }
+.oled32-screen { height: 120px; }
+.oled32-content { gap: 1px; }
+.oled32-header { font-size: 18px; }
+.oled32-cue { font-size: 14px; }
+
+@keyframes esp-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.3; }
+}
+
+/* ── Live data sidebar ── */
+.esp32-data {
+  width: 100%;
+  max-width: 860px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 4px 16px;
+  font-size: 10px;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.esp32-data-title {
+  grid-column: 1 / -1;
+  color: #444;
+  letter-spacing: 0.14em;
+  font-size: 9px;
+  margin-top: 8px;
+}
+
+.esp32-data-row {
+  display: flex;
+  justify-content: space-between;
+  color: #555;
+  padding: 2px 0;
+  border-bottom: 1px solid #1a1a1a;
+}
+.esp32-data-row span:last-child { color: #888; }
+
+.esp32-data-sep {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: #1a1a1a;
+}
