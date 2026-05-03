@@ -2,6 +2,41 @@
 
 ---
 
+## v0.8.0 — 2026-05-03 — Hardware controllers (M5Stack + VST3/AU plugin)
+
+### Added — REST command endpoints
+- `POST /api/cmd/play_toggle` — toggle play/pause (hardware-friendly, no SocketIO)
+- `POST /api/cmd/rewind` — rewind + stop
+- `POST /api/cmd/advance` — advance first lane in MANUAL WAIT (or `lane_id` in body)
+- `POST /api/cmd/advance_all` — advance all waiting lanes
+- `POST /api/cmd/veto` — veto next JUMP on first active lane (or `lane_id`)
+
+### Added — M5Stack Core firmware (`hardware/m5stack_core/`)
+- `src/main.cpp` — Arduino firmware for M5Stack Core (320×240 TFT, 3 buttons)
+- `platformio.ini` — PlatformIO build config (board: `m5stack-core-esp32`, libs: M5Stack + ArduinoJson 6.x)
+- `flash.sh` — compile + flash via USB or export `.bin` for M5Burner
+- `dist/` — pre-built `.bin` for M5Burner custom flash (address `0x10000`)
+- Auto-discovery: fast-path (last known port from NVS) → full scan ports 5000–5010 on IP1 then IP2
+- Mid-session re-discovery: automatic re-scan after ~3 s without server response
+- Config screen (no touchscreen): edit IP1/IP2 via BtnA−/BtnC+/BtnB-next, hold BtnB 2 s to save in NVS
+- Button mapping: A = Advance · A hold = Play/Pause · B = Advance ALL · B hold = Rewind · C = Veto JUMP
+- Display: header (BPM ×2, sig, bar/beat, elapsed), adaptive lane rows (progress bar, badge, status stripe), footer hints
+- `README.md` — Arduino IDE setup, M5Burner flash instructions, button reference
+
+### Added — JUCE VST3/AU plugin (`hardware/dim_plugin/`)
+- `CMakeLists.txt` — JUCE 8.0.4 via FetchContent, VST3 + AU Universal Binary (arm64/x86_64)
+- `src/DIMClient.h/cpp` — background polling thread, same auto-discovery as M5Stack (fast-path + scan 5000–5010), mid-session re-discovery, command queue (fire-and-forget POST)
+- `src/PluginProcessor.h/cpp` — `AudioProcessor` (0 audio in/out), IPs persisted via `getStateInformation`
+- `src/PluginEditor.h/cpp` — custom JUCE GUI: header bar, server bar, adaptive lane rows, footer transport/control buttons, ⚙ config overlay
+- `build.sh` — `cmake` configure + build, auto-installs to `~/Library/Audio/Plug-Ins/`
+- Installed to `~/Library/Audio/Plug-Ins/VST3/D.I.M.vst3` (Ableton, Reaper, Bitwig)
+- Installed to `~/Library/Audio/Plug-Ins/Components/D.I.M.component` (Logic Pro, GarageBand)
+
+### Changed
+- `adapters/web/app.py` — bumped version to `0.8.0`; added 5 REST `/api/cmd/*` endpoints
+
+---
+
 ## v0.5.0 — 2026-05-02 — Network layer + packaging
 
 ### Added

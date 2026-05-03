@@ -41,8 +41,17 @@ data/
 .env.local
 secrets.py
 
-# ESP32
+# ESP32 / M5Stack
 *.mpy
+
+# Hardware build artifacts
+hardware/m5stack_core/.pio/
+hardware/dim_plugin/build/
+hardware/dim_plugin/_deps/
+
+# Keep pre-built M5Stack binaries (for M5Burner flashing)
+!hardware/m5stack_core/dist/
+!hardware/m5stack_core/dist/*.bin
 
 # Logs
 *.log

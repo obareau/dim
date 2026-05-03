@@ -257,7 +257,7 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
             os.path.basename(f)
             for f in glob.glob(os.path.join(_ROOT, 'formats', '*.json'))
         ])
-        return render_template("about.html", version="0.7.1", demos=demos)
+        return render_template("about.html", version="0.8.0", demos=demos)
 
     @app.route("/load-demo/<name>")
     def load_demo(name):
@@ -466,6 +466,73 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
             "t":    state.get("elapsed_fmt", "0:00"),
             "lanes": lanes,
         })
+
+    # ── ESP32 / hardware command REST endpoints ───────────────────────────────
+    # Used by M5Stack and other hardware controllers (no SocketIO needed)
+
+    @app.route("/api/cmd/play_toggle", methods=["POST"])
+    def api_cmd_play_toggle():
+        state = engine.get_state()
+        engine.set_playing(not state.get("playing", False))
+        socketio.emit("transport_state", {"playing": engine.get_state().get("playing", False)})
+        return jsonify({"ok": True, "playing": engine.get_state().get("playing", False)})
+
+    @app.route("/api/cmd/rewind", methods=["POST"])
+    def api_cmd_rewind():
+        engine.rewind()
+        socketio.emit("state_update", engine.get_state())
+        return jsonify({"ok": True})
+
+    @app.route("/api/cmd/advance", methods=["POST"])
+    def api_cmd_advance():
+        """Advance first lane in MANUAL WAIT state (or lane_id if provided)."""
+        data = request.get_json(silent=True) or {}
+        lane_id = data.get("lane_id", "")
+        # If no lane_id, find first waiting lane
+        if not lane_id:
+            state = engine.get_state()
+            for lid, ln in state.get("lanes", {}).items():
+                if ln.get("waiting"):
+                    lane_id = lid
+                    break
+        if lane_id:
+            fired = engine.trigger_manual(lane_id)
+            if fired:
+                socketio.emit("state_update", engine.get_state())
+                return jsonify({"ok": True, "lane_id": lane_id})
+        return jsonify({"ok": False, "reason": "no waiting lane"})
+
+    @app.route("/api/cmd/advance_all", methods=["POST"])
+    def api_cmd_advance_all():
+        """Advance ALL lanes currently in MANUAL WAIT state."""
+        state = engine.get_state()
+        fired_any = False
+        for lid, ln in state.get("lanes", {}).items():
+            if ln.get("waiting"):
+                if engine.trigger_manual(lid):
+                    fired_any = True
+        if fired_any:
+            socketio.emit("state_update", engine.get_state())
+        return jsonify({"ok": True, "fired": fired_any})
+
+    @app.route("/api/cmd/veto", methods=["POST"])
+    def api_cmd_veto():
+        """Veto next JUMP on first waiting/active lane (or lane_id if provided)."""
+        data = request.get_json(silent=True) or {}
+        lane_id = data.get("lane_id", "")
+        if not lane_id:
+            state = engine.get_state()
+            # Target first non-ended lane
+            for lid, ln in state.get("lanes", {}).items():
+                if not ln.get("ended"):
+                    lane_id = lid
+                    break
+        if lane_id:
+            fired = engine.veto_jump(lane_id)
+            if fired:
+                socketio.emit("state_update", engine.get_state())
+                return jsonify({"ok": True, "lane_id": lane_id})
+        return jsonify({"ok": False, "reason": "no active lane"})
 
     # ── SocketIO events ───────────────────────────────────────────────────────
 
