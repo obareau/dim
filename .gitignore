@@ -45,13 +45,13 @@ secrets.py
 *.mpy
 
 # Hardware build artifacts
-hardware/m5stack_core/.pio/
+hardware/DIM_M5Unified/.pio/
 hardware/dim_plugin/build/
 hardware/dim_plugin/_deps/
 
 # Keep pre-built M5Stack binaries (for M5Burner flashing)
-!hardware/m5stack_core/dist/
-!hardware/m5stack_core/dist/*.bin
+!hardware/DIM_M5Unified/dist/
+!hardware/DIM_M5Unified/dist/*.bin
 
 # Logs
 *.log

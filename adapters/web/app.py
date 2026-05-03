@@ -458,6 +458,7 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
             })
 
         return jsonify({
+            "loaded": 1,
             "p":    int(state.get("playing", False)),
             "bpm":  round(state.get("tempo_bpm", 120.0), 1),
             "bar":  state.get("bar", 1),
