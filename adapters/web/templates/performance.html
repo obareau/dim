@@ -94,7 +94,7 @@
 </header>
 
 {# ── Lanes ───────────────────────────────────────────────────────────────── #}
-<div class="pf-lanes" id="pf-lanes">
+<div class="pf-lanes" id="pf-lanes" data-lanes="{{ lanes_meta|length }}">
   {% for lane in lanes_meta %}
   <div class="pf-lane {% if lane.is_conductor %}pf-lane--conductor{% endif %}"
        id="lane-{{ lane.id }}"
@@ -156,7 +156,7 @@
     [↑↓] BPM &nbsp;·&nbsp; [P…] Tap &nbsp;·&nbsp; [G] TimeSig &nbsp;·&nbsp;
     [1–{{ lanes_meta|length }}] Focus &nbsp;·&nbsp; [←→] Prev/Next &nbsp;·&nbsp;
     [↵] Advance &nbsp;·&nbsp; [A] All &nbsp;·&nbsp; [V] Veto jump &nbsp;·&nbsp;
-    [+/-] Zoom &nbsp;·&nbsp; [T] Theme &nbsp;·&nbsp; [H] Help
+    [+/-] Zoom &nbsp;·&nbsp; [T] Theme &nbsp;·&nbsp; [L] ESP32 &nbsp;·&nbsp; [H] Help
   </span>
 </footer>
 

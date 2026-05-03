@@ -156,15 +156,16 @@ kbd {
   font-family: var(--mono, monospace);
   font-size: 9px;
   letter-spacing: 0.1em;
-  padding: 4px 10px;
+  padding: 6px 12px;
   border: 1px solid #333;
   background: #111;
   color: #888;
   cursor: pointer;
   border-radius: 2px;
   text-decoration: none;
+  white-space: nowrap;
 }
-.about-demo-btn:hover { color: #ccc; border-color: #555; background: #1a1a1a; }
+.about-demo-btn:hover { color: #e8c830; border-color: #e8c830; background: rgba(232,200,48,0.06); }
 
 /* ── Instructions reference ── */
 .about-instr-grid {
@@ -362,12 +363,15 @@ kbd {
   {% if demos %}
   <div class="about-section">
     <div class="about-h2">PROJETS DEMO</div>
-    <p class="about-p">Charger un preset via l'éditeur ou en relançant le serveur avec le fichier correspondant.</p>
+    <p class="about-p">Cliquer sur <strong>LANCER</strong> charge le preset et ouvre la vue performance. Si un projet est en cours de lecture, une confirmation est demandée.</p>
     <div class="about-demos">
       {% for demo in demos %}
+      {% set name = demo[:-5] if demo.endswith('.json') else demo %}
       <div class="about-demo-row">
         <span class="about-demo-name">{{ demo }}</span>
-        <a href="/editor" class="about-demo-btn">OUVRIR DANS L'ÉDITEUR →</a>
+        <div style="display:flex;gap:6px">
+          <button class="about-demo-btn" onclick="launchDemo('{{ name }}')">▶ LANCER EN PERFORMANCE</button>
+        </div>
       </div>
       {% endfor %}
     </div>
@@ -383,4 +387,22 @@ kbd {
   </div>
 
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+async function launchDemo(name) {
+  // Vérifier si un projet est en cours
+  let state = null;
+  try { state = await fetch('/api/state').then(r => r.json()); } catch(e) {}
+
+  if (state?.playing) {
+    if (!confirm(`Un projet est en cours de lecture.\nRemplacer par "${name}" et aller en performance ?`)) return;
+  } else if (state?.loaded) {
+    if (!confirm(`Remplacer le projet en cours par "${name}" ?`)) return;
+  }
+
+  window.location.href = '/load-demo/' + encodeURIComponent(name);
+}
+</script>
 {% endblock %}

@@ -652,6 +652,7 @@ function toggleHelp() {
         <div class="pf-help-combo">[⌘/Ctrl + 0]</div><div>Zoom 100%</div>
         <div>[\\]</div><div>Reset zoom</div>
         <div>[T] / [⇧T]</div><div>Thème suivant / précédent</div>
+        <div>[L]</div><div>LCD/OLED — émulateur ESP32 (nouvel onglet)</div>
         <div>[E]</div><div>Éditeur</div>
         <div>[H] / [⌘/Ctrl + /]</div><div>Cette aide</div>
       </div>
@@ -839,6 +840,9 @@ document.addEventListener('keydown', function (e) {
       break;
 
     // ── View ──
+    case 'KeyL':
+      window.open('/esp32', '_blank');
+      break;
     case 'KeyE':
       window.location.href = '/editor';
       break;

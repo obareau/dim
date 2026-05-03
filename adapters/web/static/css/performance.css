@@ -1142,3 +1142,67 @@ body.performance-mode .main-content {
 @media (hover: none) and (pointer: coarse) {
   .pf-touch-bar { display: flex; }
 }
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   LANE COUNT — MAXIMISATION ADAPTIVE
+   Plus il y a de lanes, plus les éléments sont compacts.
+   Moins il y en a, plus on exploite l'espace disponible.
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1 lane — full screen, tout grand ── */
+.pf-lanes[data-lanes="1"] .pf-lane-header {
+  height: 40px;
+  padding: 0 16px;
+}
+.pf-lanes[data-lanes="1"] .pf-lane-name  { font-size: 15px; letter-spacing: 0.16em; }
+.pf-lanes[data-lanes="1"] .pf-lane-num   { font-size: 13px; }
+.pf-lanes[data-lanes="1"] .pf-lane-section,
+.pf-lanes[data-lanes="1"] .pf-lane-next  { font-size: 11px; }
+.pf-lanes[data-lanes="1"] .pf-cue-list   { padding: 4px 0; }
+.pf-lanes[data-lanes="1"] .pf-cue-row    { padding: 8px 16px; gap: 10px; }
+.pf-lanes[data-lanes="1"] .pf-cl         { font-size: 20px; }
+.pf-lanes[data-lanes="1"] .pf-ci         { font-size: 11px; min-width: 40px; }
+.pf-lanes[data-lanes="1"] .pf-cb         { font-size: 13px; }
+.pf-lanes[data-lanes="1"] .pf-lane-footer { padding: 6px 16px; }
+.pf-lanes[data-lanes="1"] .pf-lane-seg   { height: 5px; }
+.pf-lanes[data-lanes="1"] .pf-bars-label,
+.pf-lanes[data-lanes="1"] .pf-wait-label { font-size: 11px; }
+
+/* ── 2 lanes — grand, aéré ── */
+.pf-lanes[data-lanes="2"] .pf-lane-header { height: 34px; }
+.pf-lanes[data-lanes="2"] .pf-lane-name   { font-size: 12px; }
+.pf-lanes[data-lanes="2"] .pf-cue-row     { padding: 6px 12px; }
+.pf-lanes[data-lanes="2"] .pf-cl          { font-size: 15px; }
+.pf-lanes[data-lanes="2"] .pf-ci          { font-size: 10px; min-width: 34px; }
+.pf-lanes[data-lanes="2"] .pf-cb          { font-size: 11px; }
+
+/* ── 3 lanes — légèrement au-dessus du défaut ── */
+.pf-lanes[data-lanes="3"] .pf-cue-row { padding: 5px 10px; }
+.pf-lanes[data-lanes="3"] .pf-cl      { font-size: 13px; }
+.pf-lanes[data-lanes="3"] .pf-cb      { font-size: 10px; }
+
+/* ── 5+ lanes — compact, tout petit ── */
+.pf-lanes[data-lanes="5"] .pf-cue-row,
+.pf-lanes[data-lanes="6"] .pf-cue-row,
+.pf-lanes[data-lanes="7"] .pf-cue-row,
+.pf-lanes[data-lanes="8"] .pf-cue-row { padding: 2px 6px; }
+.pf-lanes[data-lanes="5"] .pf-cl,
+.pf-lanes[data-lanes="6"] .pf-cl,
+.pf-lanes[data-lanes="7"] .pf-cl,
+.pf-lanes[data-lanes="8"] .pf-cl      { font-size: 10px; }
+.pf-lanes[data-lanes="5"] .pf-ci,
+.pf-lanes[data-lanes="6"] .pf-ci,
+.pf-lanes[data-lanes="7"] .pf-ci,
+.pf-lanes[data-lanes="8"] .pf-ci      { font-size: 8px; min-width: 22px; }
+.pf-lanes[data-lanes="5"] .pf-cb,
+.pf-lanes[data-lanes="6"] .pf-cb,
+.pf-lanes[data-lanes="7"] .pf-cb,
+.pf-lanes[data-lanes="8"] .pf-cb      { font-size: 8px; }
+.pf-lanes[data-lanes="5"] .pf-lane-header,
+.pf-lanes[data-lanes="6"] .pf-lane-header,
+.pf-lanes[data-lanes="7"] .pf-lane-header,
+.pf-lanes[data-lanes="8"] .pf-lane-header { height: 24px; padding: 0 6px; }
+.pf-lanes[data-lanes="5"] .pf-lane-name,
+.pf-lanes[data-lanes="6"] .pf-lane-name,
+.pf-lanes[data-lanes="7"] .pf-lane-name,
+.pf-lanes[data-lanes="8"] .pf-lane-name { font-size: 8px; }

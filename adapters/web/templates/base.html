@@ -19,6 +19,8 @@
     <a href="/" class="topnav-link {% if request.path == '/' %}active{% endif %}">HOME</a>
     <a href="/editor" class="topnav-link {% if request.path == '/editor' %}active{% endif %}">EDITOR</a>
     <a href="/performance" class="topnav-link {% if request.path == '/performance' %}active{% endif %}">PERFORM</a>
+    <a href="/esp32" class="topnav-link {% if request.path == '/esp32' %}active{% endif %}" title="ESP32 Display Emulator [L]">ESP32</a>
+    <a href="/about" class="topnav-link {% if request.path == '/about' %}active{% endif %}">ABOUT</a>
     <div class="topnav-spacer"></div>
     <span class="topnav-status" id="link-status" title="Connection status"></span>
   </nav>
@@ -38,6 +40,13 @@
     socket.on('disconnect', () => {
       const s = document.getElementById('link-status');
       if (s) { s.textContent = '○ OFFLINE'; s.classList.remove('live'); }
+    });
+    // Raccourci global [L] → ESP32 emulator (actif sur toutes les pages)
+    document.addEventListener('keydown', function(e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+      if (e.code === 'KeyL' && !e.metaKey && !e.ctrlKey) {
+        window.open('/esp32', '_blank');
+      }
     });
   </script>
   {% block scripts %}{% endblock %}

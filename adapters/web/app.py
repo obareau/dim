@@ -12,7 +12,7 @@ import json
 import os
 import sys
 
-from flask import Flask, jsonify, render_template, request, abort
+from flask import Flask, jsonify, render_template, request, abort, redirect
 from flask_socketio import SocketIO, emit
 
 # Ensure project root is on path
@@ -255,9 +255,25 @@ def create_app(project_path: str | None = None) -> tuple[Flask, SocketIO]:
         import os, glob
         demos = sorted([
             os.path.basename(f)
-            for f in glob.glob(os.path.join(os.path.dirname(__file__), '..', '..', 'formats', '*.json'))
+            for f in glob.glob(os.path.join(_ROOT, 'formats', '*.json'))
         ])
-        return render_template("about.html", version="0.6.0", demos=demos)
+        return render_template("about.html", version="0.7.1", demos=demos)
+
+    @app.route("/load-demo/<name>")
+    def load_demo(name):
+        """Load a demo preset and redirect to performance view."""
+        import os, re
+        # Security: only alphanum, dash, underscore + .json
+        if not re.match(r'^[\w\-]+$', name):
+            abort(400)
+        path = os.path.join(_ROOT, 'formats', name + '.json')
+        if not os.path.exists(path):
+            abort(404, f"Demo '{name}' not found")
+        try:
+            engine.load(path)
+        except Exception as e:
+            abort(422, str(e))
+        return redirect('/performance')
 
     @app.route("/api/validate", methods=["POST"])
     def api_validate():
