@@ -33,7 +33,7 @@
 #define DEFAULT_PASS  "14031972"
 #define DEFAULT_IP1   "192.168.1.28"
 #define DEFAULT_IP2   "192.168.1.1"
-#define DEFAULT_PORT  5002          // port connu → fast-path dès le 1er boot
+// Pas de DEFAULT_PORT → scan depuis PORT_MIN au premier boot
 
 #define POLL_MS           200
 #define HTTP_TIMEOUT_MS   400
@@ -57,7 +57,7 @@ void loadCfg() {
   strlcpy(cfg.pass, prefs.getString("pass", DEFAULT_PASS).c_str(), 64);
   strlcpy(cfg.ip1,  prefs.getString("ip1",  DEFAULT_IP1 ).c_str(), 32);
   strlcpy(cfg.ip2,  prefs.getString("ip2",  DEFAULT_IP2 ).c_str(), 32);
-  cfg.port = prefs.getUShort("port", DEFAULT_PORT);
+  cfg.port = prefs.getUShort("port", 0);  // 0 = pas de fast-path → scan 5000→5010
   prefs.end();
 }
 void saveCfg() {
