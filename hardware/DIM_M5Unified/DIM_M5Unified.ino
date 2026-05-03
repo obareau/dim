@@ -37,8 +37,8 @@
 
 #define POLL_MS           200
 #define HTTP_TIMEOUT_MS   400
-#define PORT_MIN          5000
-#define PORT_MAX          5010
+#define PORT_MIN          5001
+#define PORT_MAX          5001
 #define HOLD_MS           2000UL
 #define MAX_FAIL          15
 
